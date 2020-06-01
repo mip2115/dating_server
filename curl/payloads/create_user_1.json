@@ -1,0 +1,18 @@
+{
+	"email": "mary@gmail.com",
+	"password": "mary123",
+	"first_name": "mary",
+	"mobile": "8880000000",
+	"dob": "08-01-2001",
+	"gender": "male",
+	"age": 25,
+	"drink": "sometimes",
+	"smoke": "sometimes",
+	"job": "Garbage Man",
+	"university": "Columbia University",
+	"politics": "hardcore neutral",
+	"religion": "Satanist",
+	"hometown": "West Hartford",
+	"partner_gender": "female",
+	"meeting_place": "940 Amsterdam Ave, New York, NY 10025"
+}
