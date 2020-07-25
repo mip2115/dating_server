@@ -4,15 +4,18 @@ import (
 	//	"../auth"
 	//"../mapping"
 	//"../types"
+
 	"context"
 	"errors"
-	"github.com/kama/server/DB"
-	"github.com/kama/server/mapping"
-	ms "github.com/kama/server/service/match_service"
-	"github.com/kama/server/types"
-	"github.com/nu7hatch/gouuid"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	"code.mine/dating_server/DB"
+	"code.mine/dating_server/mapping"
+	ms "code.mine/dating_server/service/match_service"
+	"code.mine/dating_server/types"
+	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 

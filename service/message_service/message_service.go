@@ -1,15 +1,16 @@
 package message_service
 
 import (
-	"github.com/kama/server/DB"
-	"github.com/kama/server/types"
+	"code.mine/dating_server/DB"
+	"code.mine/dating_server/types"
+	uuid "github.com/satori/go.uuid"
 
 	"context"
-	"github.com/kama/server/mapping"
-	"github.com/nu7hatch/gouuid"
+	"time"
+
+	"code.mine/dating_server/mapping"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"time"
 )
 
 func AddMessage(

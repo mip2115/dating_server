@@ -1,11 +1,11 @@
 package search_service
 
 import (
-	"github.com/kama/server/DB"
+	"code.mine/dating_server/server/DB"
 
 	//"context"
 	"github.com/joho/godotenv"
-	"github.com/kama/server/scripts"
+	"code.mine/dating_server/server/scripts"
 	"github.com/stretchr/testify/suite"
 	//	"log"
 

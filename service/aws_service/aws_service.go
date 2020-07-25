@@ -4,15 +4,18 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
+	uuid "github.com/satori/go.uuid"
+
 	//"github.com/kama/server/DB"
-	AWSSetup "github.com/kama/server/DB/aws"
+	AWSSetup "code.mine/dating_server/aws"
 	//us "github.com/kama/server/service/user_service"
 	//"github.com/kama/server/types"
 	//AWSSetup "github.com/code/kama/server/DB/aws"
 	//image "github.com/kama/server/service/image_service"
-	"github.com/nu7hatch/gouuid"
+
 	"os"
 )
 

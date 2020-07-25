@@ -14,6 +14,7 @@ func CreateRoutes(r *mux.Router) {
 
 	// user routes
 	r.Handle("/api/user/create", GetCreateUserHandler()).Methods("POST")
+
 	r.Handle("/api/user/login", GetLoginUserHandler()).Methods("POST")
 	r.Handle("/api/user/delete", GetDeleteUserHandler()).Methods("DELETE")
 	r.Handle("/api/user/update", GetUpdateUserHandler()).Methods("POST")
@@ -26,8 +27,7 @@ func CreateRoutes(r *mux.Router) {
 
 	// message routes
 	r.Handle("/api/message/add", GetAddMessageHandler()).Methods("POST")
-	r.Handle("/api/auth/zoom/callback", GetZoomHandler()).Methods("POST")
-	r.Handle("/api/auth/zoom/tokencallback", GetZoomTokenHandler()).Methods("POST")
+
 }
 
 func CreatePostRoutes(r *mux.Router) {

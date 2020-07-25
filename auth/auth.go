@@ -2,7 +2,7 @@ package auth
 
 import (
 	"github.com/dgrijalva/jwt-go"
-	"github.com/kama/server/types"
+	"code.mine/dating_server/types"
 	//"golang.org/x/crypto/bcrypt"
 	"context"
 	//"errors"

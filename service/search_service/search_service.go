@@ -2,9 +2,10 @@ package search_service
 
 import (
 	"context"
-	"github.com/kama/server/DB"
-	us "github.com/kama/server/service/user_service"
-	"github.com/kama/server/types"
+
+	"code.mine/dating_server/DB"
+	us "code.mine/dating_server/server/service/user_service"
+	"code.mine/dating_server/types"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -19,15 +20,17 @@ func CalculateTopUsers(userUUID *string, skipValue int) ([]types.User, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	topMatchedUsers, err := calculateTopUsers(
-		user.University, user.City, user.Drink, user.Smoke, user.PartnerGender,
-		user.Religion, user.Politics, skipValue,
-	)
-	if err != nil {
-		return nil, err
-	}
-
+	u := types.User{}
+	/*
+		topMatchedUsers, err := calculateTopUsers(
+			user.University, user.City, user.Drink, user.Smoke, user.PartnerGender,
+			user.Religion, user.Politics, skipValue,
+		)
+		if err != nil {
+			return nil, err
+		}
+	*/
+	topMatchedUsers := []types.User{u}
 	return topMatchedUsers, nil
 
 }

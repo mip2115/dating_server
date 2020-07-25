@@ -1,15 +1,21 @@
 package main
 
 import (
-	"./routes"
+	//"./routes"
 
 	//"context"
 	//"fmt"
-	"./DB/aws"
+	//"./DB/aws"
+
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 
-	"./DB"
+	//"./DB"
+	"code.mine/dating_server/DB"
+	"code.mine/dating_server/aws"
+	"code.mine/dating_server/routes"
+
+	//"code.mine/dating_server/server/routes"
 	//"./aws"
 
 	"log"
@@ -29,15 +35,15 @@ func init() {
 	}
 
 }
+
 func main() {
 	var BaseRouter = mux.NewRouter()
-	/*
-		err := aws.SetupAWS()
-		if err != nil {
-			log.Fatal(err.Error())
-			return
-		}
-	*/
+
+	err := aws.SetAWSConnection()
+	if err != nil {
+		log.Fatal(err.Error())
+		return
+	}
 
 	routes.CreateRoutes(BaseRouter)
 
@@ -47,12 +53,14 @@ func main() {
 	}
 	defer db.Client.Disconnect(*db.Ctx)
 
-	_, err := aws.SetAWSConnection()
+	err = aws.SetAWSConnection()
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
+	log.Println("Started server")
 	err = http.ListenAndServe(os.Getenv(PORT), BaseRouter)
+
 	if err != nil {
 		log.Fatal(err.Error())
 	}

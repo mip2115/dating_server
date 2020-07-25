@@ -1,15 +1,16 @@
-package service
+package match_service
 
 import (
-	"go.mongodb.org/mongo-driver/bson"
 	"time"
+
+	uuid "github.com/satori/go.uuid"
+	"go.mongodb.org/mongo-driver/bson"
 
 	"context"
 
-	"github.com/kama/server/DB"
-	"github.com/kama/server/mapping"
-	"github.com/kama/server/types"
-	"github.com/nu7hatch/gouuid"
+	"code.mine/dating_server/DB"
+	"code.mine/dating_server/mapping"
+	"code.mine/dating_server/types"
 )
 
 // TODO - error check to make sure youre not matching people who recently matched

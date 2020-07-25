@@ -2,14 +2,15 @@ package user_handler
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
-	"github.com/kama/server/auth"
-	"github.com/kama/server/mapping"
-	"github.com/kama/server/service/aws_service"
-	"github.com/kama/server/service/image_service"
-	"github.com/kama/server/service/user_service"
-	"github.com/kama/server/types"
 	"net/http"
+
+	"code.mine/dating_server/auth"
+	"code.mine/dating_server/mapping"
+	"code.mine/dating_server/service/aws_service"
+	"code.mine/dating_server/service/image_service"
+	"code.mine/dating_server/service/user_service"
+	"code.mine/dating_server/types"
+	"github.com/gorilla/mux"
 )
 
 func UploadUserImage(w http.ResponseWriter, r *http.Request) {

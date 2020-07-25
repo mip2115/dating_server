@@ -1,13 +1,11 @@
-package message
+package message_handler
 
 import (
 	"encoding/json"
-	"github.com/kama/server/service/aws_service"
-	"github.com/kama/server/service/image_service"
-	"github.com/kama/server/service/message_service"
-	"github.com/kama/server/service/user_service"
-	"github.com/kama/server/types"
 	"net/http"
+
+	"code.mine/dating_server/service/message_service"
+	"code.mine/dating_server/types"
 )
 
 var (
@@ -18,8 +16,10 @@ var (
 // only the sender of this is in the from position
 // also you need to use pagination and return in sorrted order by date
 // use aggregate?
+
+// AddMessage –
 func AddMessage(w http.ResponseWriter, r *http.Request) {
-	userUUID := r.Context().Value("userUUID").(string)
+	//userUUID := r.Context().Value("userUUID").(string)
 	tkString := r.Context().Value("tokenString").(string)
 	messageRequest := &types.MessageRequest{}
 	err := json.NewDecoder(r.Body).Decode(messageRequest)
@@ -43,6 +43,7 @@ func AddMessage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetMessages –
 func GetMessages(w http.ResponseWriter, r *http.Request) {
 	tkString := r.Context().Value("tokenString").(string)
 	mr := &types.MessageRequest{}

@@ -3,6 +3,7 @@ package DB
 import (
 	"context"
 	"errors"
+
 	//	"fmt"
 	// "go.mongodb.org/mongo-driver/bson"
 
@@ -42,6 +43,7 @@ func SetupDB() (*DB_Connection_Struct, error) {
 		log.Fatal(err)
 		return nil, err
 	}
+	log.Println("Started DB")
 
 	DB_Connection.Client = client
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

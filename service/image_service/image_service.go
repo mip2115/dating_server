@@ -2,10 +2,11 @@ package image_service
 
 import (
 	"context"
-	"github.com/kama/server/DB"
-	"github.com/kama/server/mapping"
-	"github.com/kama/server/types"
-	"github.com/nu7hatch/gouuid"
+
+	"code.mine/dating_server/DB"
+	"code.mine/dating_server/mapping"
+	"code.mine/dating_server/types"
+	uuid "github.com/satori/go.uuid"
 	"go.mongodb.org/mongo-driver/bson"
 )
 

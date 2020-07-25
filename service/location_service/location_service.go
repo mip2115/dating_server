@@ -6,9 +6,9 @@ import (
 
 	"context"
 
-	"github.com/kama/server/DB"
-	"github.com/kama/server/mapping"
-	"github.com/kama/server/types"
+	"code.mine/dating_server/server/DB"
+	"code.mine/dating_server/server/mapping"
+	"code.mine/dating_server/server/types"
 	"github.com/nu7hatch/gouuid"
 )
 

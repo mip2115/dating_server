@@ -2,7 +2,7 @@ package search_endpoint
 
 import (
 	"errors"
-	"github.com/kama/server/service/search_service"
+	"code.mine/dating_server/server/service/search_service"
 	"net/http"
 )
 

@@ -1,4 +1,4 @@
-package match
+package match_handler
 
 import (
 	"encoding/json"
@@ -7,8 +7,9 @@ import (
 	"net/http"
 	// "../../DB"
 	// "../../auth"
-	"github.com/kama/server/service/match_service"
-	"github.com/kama/server/types"
+	"code.mine/dating_server/service/match_service"
+	"code.mine/dating_server/types"
+
 	//"context"
 	"github.com/gorilla/mux"
 	//"go.mongodb.org/mongo-driver/bson"
@@ -32,7 +33,7 @@ func CreateMatch(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	m.MatchUUID = res
+	m.UUID = res
 	response := types.MatchResponse{}
 	response.Match = m
 	response.Token = &tkString
@@ -49,10 +50,10 @@ func DeleteMatch(w http.ResponseWriter, r *http.Request) {
 	deleteMatchID := params["mid"]
 	profileBID := params["bid"]
 	m := &types.MatchRequest{}
-	m.UserA = &userID
-	m.UserB = &profileBID
-	m.MatchID = &deleteMatchID
-	err := service.DeleteMatch(m)
+	m.UserAUUID = &userID
+	m.UserBUUID = &profileBID
+	m.UUID = &deleteMatchID
+	err := match_service.DeleteMatch(m)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

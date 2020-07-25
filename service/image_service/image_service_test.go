@@ -2,8 +2,8 @@ package image_service
 
 import (
 	"github.com/joho/godotenv"
-	"github.com/kama/server/DB"
-	"github.com/kama/server/scripts"
+	"code.mine/dating_server/server/DB"
+	"code.mine/dating_server/server/scripts"
 	//"github.com/kama/server/types"
 	"github.com/stretchr/testify/suite"
 	"log"
