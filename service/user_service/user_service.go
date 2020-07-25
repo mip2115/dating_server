@@ -7,6 +7,8 @@ import (
 
 	"context"
 	"errors"
+	"fmt"
+	"strings"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -45,48 +47,93 @@ func CreateUser(user *types.User) (*string, error) {
 	return insertedID, nil
 }
 
-// TODO – take care of blocked users and temp blocked not being
-// able to like this user
-// profileAID LIKES profileBID
-func LikeProfile(profileAUUID *string, profileBUUID *string) (*types.Match, error) {
-	usersLikedProfileB, err := getProfilesLikedUser(profileBUUID)
+// TODO –
+// best way to do this is just to create a "tracked_like" kind of situation
+// upload a record and then you can also tell if
+// they both liked each other
+// always set UserOne as the first to make the like
+func LikeProfile(userUUID *string, likedProfileUUID *string) (*types.TrackedLike, error) {
+
+	// first check if there is a trackedLike
+	// if there is, then just update it.
+	//
+	c, err := DB.GetCollection("trackedLike")
 	if err != nil {
 		return nil, err
-	}
-	if contains(usersLikedProfileB, *profileAUUID) {
-		return nil, errors.New("Already liked this profile")
-	}
-	// before adding userID to profileBID's likes, check if BID already liked
-	// UserID
-	usersLikedProfileA, err := getProfilesLikedUser(profileAUUID)
-	if err != nil {
-		return nil, err
-	}
-	if contains(usersLikedProfileA, *profileBUUID) {
-		// this is the case that AID likes B and BID already like A
-		// so remove BID from usersLikedProfileA and generate a match
-		err = pullProfileFromUserLikes(profileBUUID, profileAUUID)
-		if err != nil {
-			return nil, err
-		}
-		m := &types.Match{
-			UserAUUID: profileAUUID,
-			UserBUUID: profileBUUID,
-		}
-		insertedID, err := ms.CreateMatch(m)
-		if err != nil {
-			return nil, err
-		}
-		m.UUID = insertedID
-		return m, nil
 	}
 
-	// add profileAID to profileBID list of liked users
-	err = addProfileToUserLikes(profileAUUID, profileBUUID)
+	trackedLike := &types.TrackedLike{}
+	query := []bson.D{bson.D{{Key: "userOneUUID", Value: *userUUID}}, {{Key: "userOneUUID", Value: *likedProfileUUID}}}
+	res := c.FindOne(context.Background(), bson.D{{Key: "$or", Value: query}})
+	err = res.Err()
+
+	var createTrackedLike bool
+	if strings.Contains(err.Error(), "no documents in result") {
+		createTrackedLike = true
+	}
+	if err != nil && !createTrackedLike {
+		return nil, err
+	}
+	if createTrackedLike {
+		newUUID, err := uuid.NewV4()
+		if err != nil {
+			return nil, err
+		}
+		trackedLike.UUID = mapping.StrToPtr(newUUID.String())
+		trackedLike.UserOneUUID = userUUID
+		trackedLike.UserTwoUUID = likedProfileUUID
+		trackedLike.UserOneLiked = true
+		_, err = c.InsertOne(context.Background(), trackedLike)
+		if err != nil {
+			return nil, err
+		}
+		return trackedLike, nil
+	}
+	res.Decode(trackedLike)
+	if trackedLike.UserOneUUID == nil {
+		return nil, fmt.Errorf("user one cannot be nil in tracked like %s ", mapping.StrToV(trackedLike.UUID))
+	}
+	if trackedLike.UserTwoUUID == nil {
+		return nil, fmt.Errorf("user two should not be nil in tracked like %s ", mapping.StrToV(trackedLike.UUID))
+	}
+	if mapping.StrToV(trackedLike.UserOneUUID) != mapping.StrToV(likedProfileUUID) {
+		return nil, fmt.Errorf("user one should be the profile we're liking in tracked like %s ", mapping.StrToV(trackedLike.UUID))
+	}
+	if !trackedLike.UserOneLiked {
+		return nil, fmt.Errorf("user one liked should be true in tracked like %s ", mapping.StrToV(trackedLike.UUID))
+	}
+	if trackedLike.MatchUUID != nil {
+		return nil, fmt.Errorf("match uuid in tracked like %s should be nil", mapping.StrToV(trackedLike.UUID))
+	}
+
+	fieldsToUpdate := bson.D{}
+	fieldsToUpdate = append(fieldsToUpdate, primitive.E{Key: "userTwoLiked", Value: true})
+
+	// now generate the match
+	match := &types.Match{}
+	match.UserOneUUID = trackedLike.UserOneUUID
+	match.UserTwoUUID = trackedLike.UserTwoUUID
+	insertedID, err := ms.CreateMatch(match)
 	if err != nil {
 		return nil, err
 	}
-	return nil, nil
+	fieldsToUpdate = append(fieldsToUpdate, primitive.E{Key: "match_uuid", Value: mapping.StrToV(insertedID)})
+
+	trackedLike.UserTwoLiked = true
+	trackedLike.MatchUUID = insertedID
+	update := bson.D{{Key: "$set",
+		Value: fieldsToUpdate,
+	}}
+	_, err = c.UpdateOne(
+		context.Background(),
+		bson.M{"uuid": mapping.StrToV(trackedLike.UUID)},
+		update,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return trackedLike, nil
+
 }
 
 func LoginUser(user *types.User) (*types.User, error) {

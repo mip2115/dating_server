@@ -18,21 +18,7 @@ import (
 func CreateMatch(m *types.Match) (*string, error) {
 	t := time.Now()
 	m.DateCreated = &t
-	// first create messages document
-	msgObjUUID, err := createMessagesObj()
-	if err != nil {
-		return nil, err
-	}
-	m.MessageObjectUUID = msgObjUUID
 	insertedMatchUUID, err := createMatch(m)
-	if err != nil {
-		return nil, err
-	}
-	err = addMatchToUser(insertedMatchUUID, m.UserAUUID)
-	if err != nil {
-		return nil, err
-	}
-	err = addMatchToUser(insertedMatchUUID, m.UserBUUID)
 	if err != nil {
 		return nil, err
 	}
@@ -40,58 +26,28 @@ func CreateMatch(m *types.Match) (*string, error) {
 }
 
 func DeleteMatch(m *types.MatchRequest) error {
-	err := removeMatchMsgs(m.Match.MessageObjectUUID)
+	err := deleteMatch(m.UUID)
 	if err != nil {
 		return err
 	}
-	err = deleteMatch(m.UUID)
-	if err != nil {
-		return err
-	}
-	err = removeMatchFromUser(m.UUID, m.UserBUUID)
-	if err != nil {
-		return err
-	}
-	err = removeMatchFromUser(m.UUID, m.UserAUUID)
+	err = deleteTrackedLikeByMatchUUID(m.UUID)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func removeMatchMsgs(msgUUID *string) error {
-	c, err := DB.GetCollection("messages")
+func deleteTrackedLikeByMatchUUID(matchUUID *string) error {
+	c, err := DB.GetCollection("trackedLike")
 	if err != nil {
 		return err
 	}
-	_, err = c.DeleteOne(context.Background(), bson.M{"uuid": *msgUUID})
+	_, err = c.DeleteOne(context.Background(), bson.M{"match_uuid": mapping.StrToV(matchUUID)})
 	if err != nil {
 		return err
 	}
 	return nil
 }
-
-func createMessagesObj() (*string, error) {
-	msgObj := &types.MessagesObject{}
-	msgs := []*types.Message{}
-	msgObj.Messages = msgs
-	uuid, err := uuid.NewV4()
-	if err != nil {
-		return nil, err
-	}
-	msgObj.UUID = mapping.StrToPtr(uuid.String())
-	c, err := DB.GetCollection("messages")
-	if err != nil {
-		return nil, err
-	}
-	_, err = c.InsertOne(context.Background(), msgObj)
-	if err != nil {
-		return nil, err
-	}
-	msgObjUUID := uuid.String()
-	return &msgObjUUID, nil
-}
-
 func deleteMatch(matchUUID *string) error {
 	c, err := DB.GetCollection("matches")
 	if err != nil {
@@ -116,38 +72,4 @@ func createMatch(m *types.Match) (*string, error) {
 		return nil, err
 	}
 	return m.UUID, nil
-}
-
-func addMatchToUser(matchUUID *string, userUUID *string) error {
-	update := bson.M{"$push": bson.M{"matches": *matchUUID}}
-	c, err := DB.GetCollection("users")
-	if err != nil {
-		return err
-	}
-	_, err = c.UpdateOne(
-		context.Background(),
-		bson.M{"uuid": *userUUID},
-		update,
-	)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func removeMatchFromUser(matchUUID *string, userUUID *string) error {
-	update := bson.M{"$pull": bson.M{"matches": *matchUUID}}
-	c, err := DB.GetCollection("users")
-	if err != nil {
-		return err
-	}
-	_, err = c.UpdateOne(
-		context.Background(),
-		bson.M{"uuid": *userUUID},
-		update,
-	)
-	if err != nil {
-		return err
-	}
-	return nil
 }
