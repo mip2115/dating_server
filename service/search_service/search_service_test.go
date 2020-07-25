@@ -4,9 +4,10 @@ import (
 	"code.mine/dating_server/server/DB"
 
 	//"context"
+	"code.mine/dating_server/scripts"
 	"github.com/joho/godotenv"
-	"code.mine/dating_server/server/scripts"
 	"github.com/stretchr/testify/suite"
+
 	//	"log"
 
 	"testing"

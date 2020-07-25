@@ -18,6 +18,13 @@ func IntToPtr(x int64) *int64 {
 	return &x
 }
 
+func IntToV(x *int64) int64 {
+	if x == nil {
+		return 0
+	}
+	return *x
+}
+
 func BoolToPtr(x bool) *bool {
 	return &x
 }

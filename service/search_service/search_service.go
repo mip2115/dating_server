@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"code.mine/dating_server/DB"
-	us "code.mine/dating_server/server/service/user_service"
+	us "code.mine/dating_server/service/user_service"
 	"code.mine/dating_server/types"
 
 	"go.mongodb.org/mongo-driver/bson"

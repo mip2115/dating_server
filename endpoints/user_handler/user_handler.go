@@ -28,7 +28,15 @@ func UploadUserImage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	img, err := image_service.CreateImage(&userUUID, link, key)
+
+	imageToUpload := &types.Image{
+		Rank:     imageRequest.Rank,
+		Key:      key,
+		Link:     link,
+		UserUUID: mapping.StrToPtr(userUUID),
+	}
+
+	img, err := image_service.CreateImage(imageToUpload)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -162,11 +170,12 @@ func LikeProfile(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	likedProfileUUID := params["likedProfileUUID"]
 	// if m isnt' nil then a match occuredd
-	m, err := user_service.LikeProfile(&userUUID, &likedProfileUUID)
+	err := user_service.LikeProfile(&userUUID, &likedProfileUUID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	m := getMatch
 	response := types.MatchResponse{}
 	response.Token = &tkString
 	if m != nil {

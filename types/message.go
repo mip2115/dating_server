@@ -10,12 +10,7 @@ type Message struct {
 	To          *string    `json:"userTo"`
 	DateCreated *time.Time `json:"dateCreated"`
 	Content     *string    `json:"content"`
-}
-
-type MessagesObject struct {
-	UUID      *string    `json:"uuid,omitempty" bson:"uuid,omitempty"`
-	MatchUUID *string    `json:"matchUUID" bson:"matchUUID"`
-	Messages  []*Message `json:"messages"`
+	MatchUUID   *string    `json:"match_uuid" bson:"match_uuid"`
 }
 
 type MessageRequest struct {
@@ -30,9 +25,4 @@ type MessageRequest struct {
 type MessageResponse struct {
 	Message *Message `json:"message"`
 	Token   *string  `json:"token"`
-}
-
-type MessagesObjectResponse struct {
-	Messages []*Message `json:"messages"`
-	Token    *string    `json:"token"`
 }

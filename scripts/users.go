@@ -2,9 +2,10 @@ package scripts
 
 import (
 	"context"
-	"code.mine/dating_server/server/DB"
-	"code.mine/dating_server/server/mapping"
-	"code.mine/dating_server/server/types"
+
+	"code.mine/dating_server/DB"
+	"code.mine/dating_server/mapping"
+	"code.mine/dating_server/types"
 )
 
 func CreateUsers() error {

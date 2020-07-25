@@ -2,7 +2,7 @@ package types
 
 type Image struct {
 	UUID     *string `json:"uuid" bson:"uuid"`
-	UserUUID *string `json:"userUUID" bson:"userUUID"`
+	UserUUID *string `json:"user_uuid" bson:"user_uuid"`
 	Rank     *int64  `json:"rank" bson:"rank"`
 	Link     *string `json:"link" bson:"link"`
 	Key      *string `json:"key" bson:"key"`
