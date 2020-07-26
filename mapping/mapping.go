@@ -14,11 +14,22 @@ func StrToV(x *string) string {
 	return *x
 }
 
-func IntToPtr(x int64) *int64 {
+func IntToPtr(x int) *int {
 	return &x
 }
 
-func IntToV(x *int64) int64 {
+func IntToV(x *int) int {
+	if x == nil {
+		return 0
+	}
+	return *x
+}
+
+func IntTo64Ptr(x int64) *int64 {
+	return &x
+}
+
+func Int64ToV(x *int64) int64 {
 	if x == nil {
 		return 0
 	}

@@ -12,7 +12,8 @@ import (
 )
 
 var (
-	limitValue = 3
+	limitValue    = 3
+	usersToReturn = 3
 )
 
 func CalculateTopUsers(userUUID *string, skipValue int) ([]types.User, error) {

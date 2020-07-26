@@ -6,6 +6,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 
 	"context"
+	"errors"
 	"time"
 
 	"code.mine/dating_server/mapping"
@@ -20,6 +21,12 @@ func AddMessage(
 	if err != nil {
 		return nil, err
 	}
+	if messageRequest.MatchUUID == nil {
+		return nil, errors.New("need match uuid in message request")
+	}
+	if messageRequest.Content == nil {
+		return nil, errors.New("need content in message request")
+	}
 	msg := &types.Message{}
 	msg.From = messageRequest.From
 	msg.To = messageRequest.To
@@ -27,7 +34,7 @@ func AddMessage(
 	msg.UUID = mapping.StrToPtr(u.String())
 	t := time.Now()
 	msg.DateCreated = &t
-	err = addMessage(messageRequest.MatchUUID, msg)
+	err = addMessage(msg)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +43,7 @@ func AddMessage(
 }
 
 func GetMessages(messageRequest *types.MessageRequest, nPerPage int) ([]*types.Message, error) {
-	pagesToSkip := *messageRequest.Page
+	pagesToSkip := mapping.IntToV(messageRequest.Page)
 	msgs, err := getMessages(pagesToSkip, nPerPage, messageRequest.MatchUUID)
 	if err != nil {
 		return nil, err
@@ -56,7 +63,7 @@ func getMessages(pagesToSkip int, nPerPage int, matchUUID *string) ([]*types.Mes
 		return nil, err
 	}
 	// remember to set limits later on
-	cursor, err := c.Find(context.Background(), bson.D{})
+	cursor, err := c.Find(context.Background(), bson.D{}, options)
 	if err != nil {
 		return nil, err
 	}
@@ -67,15 +74,12 @@ func getMessages(pagesToSkip int, nPerPage int, matchUUID *string) ([]*types.Mes
 	return msgs, nil
 }
 
-func addMessage(matchUUID *string, msg *types.Message) error {
+func addMessage(msg *types.Message) error {
 	c, err := DB.GetCollection("messages")
 	if err != nil {
 		return err
 	}
-	update := bson.M{"$push": bson.M{
-		"messages": msg,
-	}}
-	_, err = c.UpdateOne(context.Background(), bson.M{"matchUUID": *matchUUID}, update)
+	_, err = c.InsertOne(context.Background(), msg)
 	if err != nil {
 		return err
 	}
