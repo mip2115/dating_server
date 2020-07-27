@@ -1,5 +1,7 @@
 package mapping
 
+import "time"
+
 func StrToPtr(x string) *string {
 	if x == "" {
 		return nil
@@ -25,7 +27,7 @@ func IntToV(x *int) int {
 	return *x
 }
 
-func IntTo64Ptr(x int64) *int64 {
+func Int64ToPtr(x int64) *int64 {
 	return &x
 }
 
@@ -43,6 +45,17 @@ func BoolToPtr(x bool) *bool {
 func BoolToV(x *bool) bool {
 	if x == nil {
 		return false
+	}
+	return *x
+}
+
+func TimeToPtr(x time.Time) *time.Time {
+	return &x
+}
+
+func TimeToV(x *time.Time) time.Time {
+	if x == nil {
+		return time.Time{}
 	}
 	return *x
 }
