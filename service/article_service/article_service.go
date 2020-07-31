@@ -79,6 +79,7 @@ func CreateArticleRecord(userUUID *string, text *string) error {
 // and age range.
 // then get all THEIR articles and that's what you'll match on.
 
+// https://cloud.google.com/natural-language/docs/reference/libraries#client-libraries-install-go
 // https://github.com/gopherdata/resources/blob/master/tooling/README.md#nlp
 func GetArticleMatchesForUser(userUUID *string) ([]*types.Article, error) {
 	var user *types.User
