@@ -45,9 +45,16 @@ func (suite *NLPTestSuite) TestGetSimilarityOfSynsets() {
 }
 
 func (suite *NLPTestSuite) TestGetStemOfWord() {
-	_ = GetStem()
+	_ = GetStemOfWord()
 
 }
+
+func (suite *NLPTestSuite) TestNGrams() {
+	word := "snow is good and snow is bad"
+	tokens := GetNGramOfString(word, 3)
+	suite.NotNil(tokens)
+}
+
 func (suite *NLPTestSuite) TestGetSynonyms() {
 	word := "snow"
 	syns, err := GetSynonyms(&word)

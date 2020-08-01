@@ -12,3 +12,14 @@ type Article struct {
 	DateCreated *time.Time `json:"date_created" bson:"date_created"`
 	WordCount   *int64     `json:"word_count" bson:"word_count"`
 }
+
+type TextSummary struct {
+	TopRatedWords []*TopRatedWord
+	Keyphrases    []*string
+	Entities      []*string
+}
+
+type TopRatedWord struct {
+	Word  *string
+	Score *float32
+}
