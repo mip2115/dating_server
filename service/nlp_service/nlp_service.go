@@ -50,14 +50,20 @@ func GetTextBreakDown(text string) (*types.TextSummary, error) {
 
 	// get word word rate score
 	// so get the top 5 or so wrods w highest rate and see if htere's a scor for that
-	topRatedWords := GetWordRateScore(text)
-	textSummary.TopRatedWords = topRatedWords
+	// need to mak this a set...cant have same  forwords
 
 	sess, err := aws.GetSession()
 	if err != nil {
 		return nil, err
 	}
 	client := comprehend.New(sess)
+	topRatedWords, err := GetWordRateScore(text, client)
+	if err != nil {
+		return nil, err
+	}
+	// for top rated words you can/should only nouns you know?
+	textSummary.TopRatedWords = topRatedWords
+
 	entities, err := GetEntitiesOfText(text, client)
 	if err != nil {
 		return nil, err
@@ -82,7 +88,7 @@ func GetTextBreakDown(text string) (*types.TextSummary, error) {
 }
 
 // GetKeyphrasesOfText –
-func GetKeyphrasesOfText(text string, client *comprehend.Comprehend) ([]*string, error) {
+func GetKeyphrasesOfText(text string, client *comprehend.Comprehend) ([]string, error) {
 	input := &comprehend.DetectKeyPhrasesInput{
 		LanguageCode: AMZN.String("en"),
 		Text:         AMZN.String(text),
@@ -91,23 +97,24 @@ func GetKeyphrasesOfText(text string, client *comprehend.Comprehend) ([]*string,
 	if err != nil {
 		return nil, err
 	}
-	keyphrases := []*string{}
+	// attach a score and sort to get top 5
+	keyphrases := []string{}
 	for _, v := range result.KeyPhrases {
-		keyphrases = append(keyphrases, mapping.StrToPtr(v.String()))
+		keyphrases = append(keyphrases, *v.Text)
 	}
 	for i, v := range keyphrases {
-		temp := strings.Split(*v, " ")
+		temp := strings.Split(v, " ")
 		for idx, val := range temp {
 			temp[idx] = GetStemOfWord(val)
 		}
 		str := strings.Join(temp, " ")
-		keyphrases[i] = &str
+		keyphrases[i] = str
 	}
 	return keyphrases, nil
 }
 
 // GetEntitiesOfText –
-func GetEntitiesOfText(text string, client *comprehend.Comprehend) ([]*string, error) {
+func GetEntitiesOfText(text string, client *comprehend.Comprehend) ([]string, error) {
 	input := &comprehend.DetectEntitiesInput{
 		LanguageCode: AMZN.String("en"),
 		Text:         AMZN.String(text),
@@ -116,21 +123,47 @@ func GetEntitiesOfText(text string, client *comprehend.Comprehend) ([]*string, e
 	if err != nil {
 		return nil, err
 	}
-	entities := []*string{}
+	entities := []string{}
+	set := map[string]bool{}
 	for _, v := range result.Entities {
-		entities = append(entities, mapping.StrToPtr(v.String()))
+		word := *v.Text
+		if !set[word] {
+			entities = append(entities, *v.Text)
+			set[word] = true
+		}
 	}
 	for i, v := range entities {
-		entities[i] = mapping.StrToPtr(GetStemOfWord(*v))
+		entities[i] = GetStemOfWord(v)
 	}
 	return entities, nil
 }
 
 // GetWordRateScore –
-func GetWordRateScore(text string) []*types.TopRatedWord {
-	text = GetStemsOfText(text)
+func GetWordRateScore(text string, client *comprehend.Comprehend) ([]types.TopRatedWord, error) {
+	syntaxInput := &comprehend.DetectSyntaxInput{
+		LanguageCode: AMZN.String("en"),
+		Text:         AMZN.String(text),
+	}
+	output, err := client.DetectSyntax(syntaxInput)
+	if err != nil {
+		return nil, err
+	}
+
+	textAsSlice := []string{}
+	for _, tkn := range output.SyntaxTokens {
+		if *tkn.PartOfSpeech.Tag == "PROPN" ||
+			*tkn.PartOfSpeech.Tag == "PORN" ||
+			*tkn.PartOfSpeech.Tag == "SYM" {
+			textAsSlice = append(textAsSlice, *tkn.Text)
+		}
+	}
+	// text = strings.Join(words, " ")
+	for i := range textAsSlice {
+		textAsSlice[i] = GetStemOfWord(textAsSlice[i])
+	}
+	// text = GetStemsOfText(text)
 	frequency := map[string]float32{}
-	textAsSlice := strings.Split(text, " ")
+	//textAsSlice := strings.Split(text, " ")
 	totalWords := len(textAsSlice)
 
 	for _, v := range textAsSlice {
@@ -138,21 +171,24 @@ func GetWordRateScore(text string) []*types.TopRatedWord {
 	}
 
 	// convert frequencies to rates
-	topRatedWords := []*types.TopRatedWord{}
+	topRatedWords := []types.TopRatedWord{}
 	for k := range frequency {
 		//frequency[k] = frequency[k] / float32(totalWords)
 		score := frequency[k] / float32(totalWords)
-		ratedWord := &types.TopRatedWord{
-			Word:  &k,
-			Score: &score,
-		}
+		ratedWord := types.TopRatedWord{}
+		ratedWord.Score = score
+		ratedWord.Word = k
 		topRatedWords = append(topRatedWords, ratedWord)
 	}
 
 	sort.Slice(topRatedWords, func(p, q int) bool {
-		return *topRatedWords[p].Score < *topRatedWords[q].Score
+		return topRatedWords[p].Score < topRatedWords[q].Score
 	})
-	return topRatedWords[:5]
+	length := len(topRatedWords)
+	if length >= 5 {
+		length = 5
+	}
+	return topRatedWords[:length], nil
 }
 
 // RemoveLowCountWords –

@@ -1,0 +1,86 @@
+Update for July 31, 1:45 p.m. EDT: The Mars rover Perseverance is out of "safe mode" and is back to normal operations on its cruise to the Red Planet. Read our full story here. 
+
+Original story:
+
+ADVERTISING
+
+NASA is celebrating the launch of its most advanced Mars rover ever today (July 30), even as engineers tackle a glitch that left the spacecraft in a protective "safe mode" shortly after liftoff. 
+
+The Mars 2020 Perseverance rover launched toward the Red Planet at 7:50 a.m. EDT (1150 GMT), riding an Atlas V rocket into space from Cape Canaveral Air Force Station in Florida. The rover experienced minor communications and temperature glitches after launch, but the issues aren't expected to harm the mission as a whole, NASA officials said.
+
+"It was an amazing launch, right on time," NASA Administrator Jim Bridenstine said during a post-launch news conference. "I think we're in great shape. It was a great day for NASA."
+
+Live Updates: NASA's Mars rover Perseverance launch in real time! 
+
+Click here for more Space.com videos...
+CLOSE
+Shortly after the conference, NASA confirmed that Perseverance slipped into "safe mode" due to an unexpected temperature difference. 
+
+"Data indicate the spacecraft had entered a state known as safe mode, likely because a part of the spacecraft was a little colder than expected while Mars 2020 was in Earth's shadow," NASA officials said in a statement. "All temperatures are now nominal and the spacecraft is out of Earth's shadow."
+
+
+Discounts for safe driving?
+Sponsored by State Farm
+Mission accomplished. Drive safe and get a discount with the State Farm Drive Safe & Save™ app.
+
+SEE MORE
+Related: NASA's Mars Perseverance rover to the Red Planet (photos)
+
+Post-launch hiccups 
+During today's post-launch news conference, the team received word that one issue, a lingering communications issue, was fixed. Within the first few hours after launch, although mission personnel could pick up the signal the spacecraft was sending home, it wasn't being processed correctly.
+
+However, that situation didn't cause much concern, Matt Wallace, deputy project manager for Mars 2020 with NASA's Jet Propulsion Laboratory (JPL) in California, said during the briefing. The miscommunication was caused by the fact that NASA relies on a system called the Deep Space Network to communicate with Perseverance even soon after launch, when the spacecraft isn't yet all that deep into space.
+
+And, because the Deep Space Network is made up of massive antennas equipped with super sensitive receivers, the signal from a spacecraft so close to the network can end up blasting the system, like someone screaming directly into your ear. Engineers needed to tweak the network settings in order to actually process the information coming from the spacecraft.
+
+"Just as the administrator was speaking, I did just get a text that we were able to lock up on that telemetry," Wallace said. "All the indications that we have — and we have quite a few — are that the spacecraft is just fine."
+
+NASA's Curiosity rover faced a similar issue during its launch in 2011, Wallace said. "It's something that we've seen before with other Mars missions," Bridenstine said. "This is not unusual. Everything is going according to plan."
+
+Click here for more Space.com videos...
+Perseverance's 'safe mode' explained
+Advertisement
+The mission team revealed a second post-launch hiccup shortly later in the news conference: Perseverance went into safe mode. 
+
+When the spacecraft got a little colder than expected passing through Earth's shadow, it automatically put itself into that state, according to the NASA statement, although the spacecraft's temperature quickly bounced back and isn't concerning the team.
+
+Wallace emphasized that such a status shouldn't harm the mission as a whole. Safe mode is, as the name implies, designed to be safe for the spacecraft to be in right now. 
+
+"The spacecraft is happy there," Wallace said. "The team is working through that telemetry, they're going to look to the rest of the spacecraft health. So far, everything I've seen looks good."
+
+Later, Wallace told Space.com that the Perseverance mission team had traced the the temperature issue to the system that uses freon to keep the rover's nuclear battery cool. 
+
+Because Perserverance's launch carried it into Earth's shadow, it led to colder than expected temperatures in the cooling system, as compared to a launch in uninterrupted sunlight, Wallace told Space.com. When NASA's Curiosity rover, which has a similar nuclear battery, launched in 2011, it was always in daylight and did not experience the issue, he added.
+
+"Unfortunately, our analysis is never really perfect," Wallace added. "Curiosity didn't have an eclipse in its flight trajectory so we didn't have flight data to know what was going to happen."
+
+"The spacecraft was never in jeopardy," he continued. "Our philosophy is to be overly conservative on the parameters because we'd much rather trigger a safing event we didn't need, than miss a safing event we do need."
+
+The team will continue to analyze the telemetry data that the vehicle has sent so far and double check that this is indeed the hiccup. Once that is complete, the team can put the rover back in an operational status.
+
+Wallace said he expects for the spacecraft to return to normal operations mode tomorrow (July 31). But the team is not in any rush and are taking their time to carefully review all the data.
+
+Perseverance is scheduled to fly straight and steady for the next at least two weeks, anyway, he said, and so the team has time to get the spacecraft back into normal operating mode before the first necessary trajectory adjustment of its journey.
+
+A gorgeous launch 
+NASA's Mars rover Perseverance launches toward the Red Planet atop an Atlas V rocket, lifting off from Space Launch Complex 41 at Cape Canaveral Air Force Station in Florida on July 30, 2020.
+NASA's Mars rover Perseverance launches toward the Red Planet atop an Atlas V rocket, lifting off from Space Launch Complex 41 at Cape Canaveral Air Force Station in Florida on July 30, 2020. (Image credit: ULA)
+The launch itself went smoothly, with an unusually quiet countdown in mission control rooms, despite an earthquake that rattled southern California, including NASA's Jet Propulsion Laboratory, about 20 minutes before the rocket fired in Florida.
+
+Today's liftoff marked an important victory for the agency, which worried that measures imposed to reduce the spread of the coronavirus pandemic might slow launch preparations enough that Perseverance might miss its three-week window for a launch, which is dependent on orbital trajectories.
+
+Another comparable opportunity wouldn't come again until 2022; if that 26-month delay had occurred, it would have cost the agency an extra $500 million, according to Bridenstine, on top of an already difficult mission.
+
+Click here for more Space.com videos...
+Advertisement
+"[It was] adversity all along the way, but this is true for any project of this nature," Bridenstine said of struggles before the pandemic, which included a cracked heat shield and the late addition of a complicated ride-along helicopter. "Then you put on top of that the coronavirus … I'm not gonna lie, it's a challenge. It's very stressful. But look, the teams made it happen."
+
+But, despite earlier delays that pushed the launch more than a week into its window, the spacecraft blasted off during its first shot of its first countdown.
+
+"It was truly a team effort. And in every single case, everyone stood up and said, 'Yes, we want to do what we can to help,'" Lori Glaze, director of the agency's planetary science division, said. "Somehow, we made it through this."
+
+Now, the spacecraft and its human team back on Earth need to make it through a seven-month journey in deep space to reach the Red Planet. Once the spacecraft arrives at Mars, it will undergo the notoriously perilous process of entry, descent and landing.
+
+That process will unfold on Feb. 18, 2021.
+
+Editor's note: This story was updated at 5:54 p.m. EDT to include new comments from NASA's Matt Wallace on the Perseverance rover's safe mode event. Space.com contributor Amy Thompson contributed to this report from NASA's Kennedy Space Center in Cape Canaveral, Florida.

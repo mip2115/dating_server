@@ -1,0 +1,35 @@
+Various types of wireless technology and networks allow devices to speak (send data) to each other and to the web (TCP/IP Networks) without cables. There are a number of different wireless technologies out there that can be implemented in hardware products for the Internet of Things (IoT) and Machine to Machine (M2M) communication.
+
+The Institute of Electrical and Electronics Engineers (IEEE) has seven task groups in place for 802.15 technologies. Those groups set the standards for common types of wireless technologies used for personal area networks. Those 802.15 task groups include: WPAN/Bluetooth, Coexistence, High Rate WPAN, Low Rate WPAN,  mesh Networking, Body Area Networks, and Visible Light Communication. Each IEEE protocol has its own distinctive advantages and limitations. Promising developments expand their potential applications and uses.
+
+IEEE 802.15.4: What is ZigBee?
+A wireless technology currently gaining traction in the LPWAN group, ZigBee is an open global standard and is designed specifically to be used in M2M networks. The technology is inexpensive to run and doesn’t require a lot of power, making it an ideal solution for many industrial applications. The technology has a low latency, and a low duty cycle, allowing products to maximize battery life.
+
+The ZigBee protocol offers 128-bit AES encryption. The technology is also used in
+Link-Labs-Demo-Request
+Mesh networks, which allow nodes to be connected together through multiple pathways. The wireless technology is hoped to ultimately be implemented in things like smart home devices. The technology's ability to connect multiple devices together simultaneously makes it ideal for a connected home environment where users may want things like smart locks, lights, robots and thermostats to talk to one another. The ZigBee Alliance recently standardized the technology in the hope to make that connectivity possible. Currently all ZigBee devices are not capable of talking to all other ZigBee devices. The hope is that standardization will correct that issue and that the devices will offer a uniform experience for the end user.
+
+At Link Labs, many of our customers are former ZigBee users, but found that range and performance limited their applications.
+
+IEEE 802.11: WiFi
+WiFi uses radio waves (RF) to allow two devices to communicate with one another. The technology is most commonly used to connect Internet routers to devices like computers, tablets and phones; however, it can be used to connect together any two hardware components. WiFi is a local wireless network that runs of the 802.11 standards set forth by the Institute of Electrical and Electronics Engineers (IEEE).
+
+WiFi can utilize both the global 2.4GHz UHF and 5GHz SHF ISM radio bands. The WiFi Alliance certifies some products, allowing them to be labeled as “Wi-Fi Certified.” In order to receive that designation, and product must go through the Alliance’s interoperability certification testing.Learn more about AirFinder - Bluetooth plus LoRa tracking.
+802.11b, 802.11g, and 802.11n run on the 2.4GHz ISM band. The band is susceptible to interference from some Bluetooth devices as well as some microwave ovens and cordless phones. Devices that run on either band can be operated in the United States without a license from the FCC, but still require FCC part 15 certification. The first six channels of frequencies from each are considered part of the amateur radio band.
+
+SEE ALSO: Examining The Future Of WiFi: 802.11ah, 802.11ad (& Others)
+
+IEEE 802.15.1: Bluetooth and BLE
+Bluetooth and Bluetooth Low Energy (BLE) are wireless technologies used to transfer data over short distances. The technology is frequently used in small consider devices that connect to users phones and tablets. For instance, the technology is used in many speaker systems. Bluetooth Low Energy uses less power than standard Bluetooth and is used in hardware such as fitness trackers, smart watches and other connected devices in order to wirelessly transmit data without heavily compromising the battery power in a user’s phone.
+
+BLE has only recently started to pick up steam. The technology was initially introduced by smartphone maker Nokia in 2006, but didn’t become part of Bluetooth standard until 2010. Today, BLE, which is also referred to as Bluetooth Smart, is supported by the majority of smartphone and computer makers as well as most major operating systems including Windows 8, OS X, Linux, Windows Phone, Android and iOS.
+
+Bluetooth uses UHF radio waves for data transfer. The technology was originally standardized as IEEE 802.15.1, but the IEEE no longer maintains that specific standard. Companies that work with Bluetooth are often affiliated with the Bluetooth Special Interest group (SIG). The group currently has over 20,000 members, and must certify a product before it can be marketed as a Bluetooth device to the consumer or business market. That certification helps ensure that all Bluetooth devices work in a standardized way and provide a similar experience for consumers.
+
+IEEE 802.16: WiMax
+WiMax stands for Worldwide Interoperability for Microwave Access. This wireless technology allows data to be transferred at a rate of 30-40 megabits per second. The term refers specifically to interoperable implementations of the IEEE 802.16 wireless family. The technology was once used by several mobile carriers, notably Sprint, to deliver wireless data to its customers. Sprint, along with many of the other carriers who used the technology, has since switched over to using faster LTE 4G networks for data.
+
+The WiMax Forum certifies devices before they can be sold to consumer or businesses. The technology can be used both indoors and outdoors, however, WiMax devices typically produce a better signal when used outside or by a window.
+
+Link Labs builds a new type of wireless technology, called Symphony Link. Symphony Link solves many of the range and performance issues of the technologies listed above.
+

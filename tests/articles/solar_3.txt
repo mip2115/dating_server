@@ -1,0 +1,29 @@
+Solar panel installations hit a total 629 GW last year--an increase of 12 percent from 2018. It was also a lot—really a lot—of panels. And in a few years, these panels could become a major waste management headache.
+
+Solar panels vary in size and capacity, but here is an example of the relation between size—and number—and capacity. A solar power installation with a capacity of just 5 kW, for instance, could be made up of 20 panels, each with a capacity of 250 W or 16 panels, each with a capacity of 300 W. So, it takes 16 to 20 panels for a 5-kW installation.
+
+One gigawatt of power equals one million kilowatts. If we take the larger-size, smaller-number panel installation from above, it would need 3.2 panels per kW of capacity. Now multiply this by the global solar capacity added just last year, which was 114.9 GW. We are talking about tens of millions of panels added last year alone. And there are millions more in operation, some of them nearing the end of their useful life.
+
+In a recent study, researchers from the National Renewable Energy Laboratory warned that by the end of this decade, some 8 million tons of solar panel waste could find their way into landfills across the world. By 2025, this could rise to as much as 80 million tons. This is up from just 250,000 tons in 2016, so if anyone needed another proof of how fast solar has grown, they need look no further.
+
+Some say the solar panel waste is not particularly harmful. The author of this article in Australia’s Renew Economy, for instance, argues that “The typical panel working life is 30 years and so just 2 square metres of panel will retire each year per person, weighing 20 kg, almost all of which is suitable for recycling. This is 1% of annual solid waste generated per person and one part in a thousand of the weight of Australian annual carbon dioxide emissions per person. For comparison, a car typically weighs 1500 kg and lasts for 10 years, thus generating 150 kg of waste per year on average.”
+Related: Oil Market Contango Returns In A Sign Of New Glut
+
+Andrew Blakers also notes that the majority of a solar panel is glass, a little silicon, which is non-toxic, and “small amounts of copper, silver, aluminium and very small amounts of solder.” 
+
+The International Energy Agency also says that the most popular solar panels in the world carry little risk for human health. But not all agree.
+
+In a 2018 article for Forbes, environmental activist Michael Schellenberg quoted solar industry insiders and researchers as saying that solar panel waste contains toxic elements that can leak into the ground if the panels are disposed of in landfills. What’s more, it is because of these toxic elements—including cadmium, lead, and antimony—that the recycling of solar panels presents a challenge. The challenge lies in the fact that although 90 percent of a panel is glass, it cannot simply be recycled like any other glass because of the impurities.
+
+The larger the installation, the more impurities, too. For instance, a massive solar farm proposed a few years ago for Virginia, if it goes ahead, would comprise as many as 1.8 million panels. These, according to opponents of the project, would contain about five tons of cadmium, which is a toxic element. Now, the amounts of cadmium and other toxic elements are naturally smaller in smaller solar farms, but the fact remains they cannot be eliminated from the makeup of solar panels to make them fit for regular recycling.
+
+It may sound surprising, given the global drive to build solar power capacity, that the recycling problem has not been addressed yet, but it appears this is the case. Earlier this month, a scientist from Australia’s Charles Darwin University sounded the alarm for thousands of solar panels due to be decommissioned in the Northern Territory alone over the next few years.
+Related: Ocasio-Cortez Could Deal A Fatal Blow To U.S. Oil Pipelines
+
+“There’s a perception that everything made can be recycled, but it’s just not that easy. Solar panels were not made to be unmade,” Dr. Deepika Mathur told Australian media. “As the oldest panels are already reaching their end-of-life, there is a critical need to start planning for the dismantling, removal, collection and recycling phases of management,” she added.
+
+But there is more than just a lack of recycling protocol. While theoretically, a solar panel’s life could last for 30 years in a best-case scenario—many are being dismantled earlier--Dr. Mathur notes in the same report.
+
+“Consumers are changing their PV panels after 10 to 12 years rather than their predicted end-of-working life of 20 to 25 years,” she says. “Working panels are being replaced as technological advances increase efficiency and reduce costs of new panels.”
+
+Basically, people are treating their solar panels as they treat their cars, swapping an older for a newer model long before the older model reaches the end of its productive life. While such a decision is, in many cases, justified on the grounds of efficiency, safety, and performance, it does appear to aggravate the recycling problem. The longer this problem remains neglected, the worse it will become as tends to happen with neglected problems.

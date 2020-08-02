@@ -14,12 +14,12 @@ type Article struct {
 }
 
 type TextSummary struct {
-	TopRatedWords []*TopRatedWord
-	Keyphrases    []*string
-	Entities      []*string
+	TopRatedWords []TopRatedWord
+	Keyphrases    []string
+	Entities      []string
 }
 
 type TopRatedWord struct {
-	Word  *string
-	Score *float32
+	Word  string
+	Score float32
 }

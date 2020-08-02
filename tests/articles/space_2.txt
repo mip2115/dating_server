@@ -1,0 +1,43 @@
+China's Chang'e 4 moon lander and rover have concluded their science tasks for a 20th lunar day on the far side of the moon.
+
+Both the mission's lander and Yutu 2 rover resumed their activities on July 14 following sunrise over their location in Von Kármán crater on the far side of the moon. The lander powered down July 26 at 10:20 p.m. EDT (0220 GMT July 27), with Yutu 2 having already gone into a dormant state about 10 hours earlier, at 12:34 p.m. EDT (1634 GMT). 
+
+ADVERTISING
+
+Yutu 2 continued on its planned journey to the northwest of the lander, according to the China Lunar Exploration Program (CLEP). The rover covered 90 feet (27.64 meters) during the lunar day to make a total of 1,610 feet (490.9 m) of roving since setting down on the far side of the moon in January 2019. 
+
+Related: China releases huge batch of Chang'e-4 images from the moon
+
+Image 1 of 4
+A patch of lunar regolith imaged by Yutu 2, released July 2020.
+
+A patch of lunar regolith imaged by Yutu 2, released July 2020. (Image credit: CNSA/CLEP)
+The shadow of the Yutu 2 rover on the lunar regolith, released July 2020.
+
+The shadow of the Yutu 2 rover on the lunar regolith, released July 2020. (Image credit: CNSA/CLEP)
+Image of the lunar regolith seen by the Yutu 2 panoramic camera in June 2020.
+
+Image of the lunar regolith seen by the Yutu 2 panoramic camera in June 2020. (Image credit: CNSA/CLEP)
+Yutu 2 hazard avoidance camera image of material at the center of a crater
+
+Yutu 2 hazard avoidance camera image of material at the center of a crater (Image credit: BACC/OurSpace)
+All of Chang'e 4's science instruments — including a low-frequency astronomy payload on the lander and a spectrometer for analyzing the composition of the lunar surface — are working well, according to CLEP.
+
+During the previous lunar day (June 14-27), Yutu 2 checked out a small crater containing relatively reflective material at its center, according to Our Space, a Chinese-language science-outreach publication. It is likely to be similar to a discovery of which last year generated widespread interest but was recently confirmed by scientists to most likely be impact melt glass.
+
+Click here for more Space.com videos...
+CLOSE
+Data from another Yutu 2 instrument — the ground-penetrating radar — has also been used to provide a first deep look below Von Kármán crater in a paper published July 9 in the journal Nature Communications.
+
+
+The radar operates at two frequencies, 60 MHz and 500 MHz. Another paper published in February in the journal Science Advances used the higher-frequency data to reveal three distinct layers beneath Yutu 2 down to 130 feet (40 m). The new paper uses the lower-frequency data which provides a deeper look, between 170 and 1,076 feet (52 to 328 m).
+
+The detections reveal that buried ejecta from major impacts is overlaid by at least four layers of distinct lava flows. The data provides direct evidence of multiple lava-infilling events, likely occurring during the Imbrium epoch, between roughly 3,850 and 3,200 million years ago.
+
+China's Yutu 2 moon rover captured this first look at the deep subsurface structure of the lunar farside. On the left (a) is a radargram of the Chang'e 4 landing site. Figure (b) shows the same radargram reinterpreted using image enhancement techniques. The cumulative length of the traversed path is 933.7 feet (284.6 meters). Yellow lines represent enhanced subsurface echoes; light blue lines are subtle boundaries denoting differences in "stripe" direction and sharpness; dashed lines denote higher uncertainty in location.
+China's Yutu 2 moon rover captured this first look at the deep subsurface structure of the lunar farside. On the left (a) is a radargram of the Chang'e 4 landing site. Figure (b) shows the same radargram reinterpreted using image enhancement techniques. The cumulative length of the traversed path is 933.7 feet (284.6 meters). Yellow lines represent enhanced subsurface echoes; light blue lines are subtle boundaries denoting differences in "stripe" direction and sharpness; dashed lines denote higher uncertainty in location.  (Image credit: Nature Communications/CC BY 4.0)
+The researchers use the readings and earlier papers to build a possible history of Von Kármán crater, suggesting which impact events may have created particular subsurface strata.
+
+The solar powered lander and Yutu 2 will wake up between 24 and 48 hours after local sunrise on Aug. 11 to begin lunar day 21. The spacecraft power down ahead of every roughly 14.5-Earth day lunar nighttime due to lack of sunlight and to protect against the deep cold.
+
+Follow us on Twitter @Spacedotcom and on Facebook.

@@ -2,8 +2,11 @@ package nlp_service
 
 import (
 	"fmt"
+	"io/ioutil"
 	"testing"
 
+	"code.mine/dating_server/aws"
+	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -12,6 +15,11 @@ type NLPTestSuite struct {
 }
 
 func (suite *NLPTestSuite) SetupSuite() {
+
+	err := godotenv.Load("../../.env")
+	suite.NoError(err)
+	err = aws.SetAWSConnection()
+	suite.NoError(err)
 
 }
 func (suite *NLPTestSuite) SetupTest() {
@@ -44,15 +52,28 @@ func (suite *NLPTestSuite) TestGetSimilarityOfSynsets() {
 
 }
 
+/*
 func (suite *NLPTestSuite) TestGetStemOfWord() {
 	_ = GetStemOfWord()
 
 }
 
+
 func (suite *NLPTestSuite) TestNGrams() {
 	word := "snow is good and snow is bad"
 	tokens := GetNGramOfString(word, 3)
 	suite.NotNil(tokens)
+}
+*/
+
+func (suite *NLPTestSuite) TestGetTextBreakDown() {
+	content, err := ioutil.ReadFile("../../tests/articles/space_2.txt")
+	suite.NoError(err)
+
+	text := string(content)
+	textSummary, err := GetTextBreakDown(text)
+	suite.NoError(err)
+	suite.NotNil(textSummary)
 }
 
 func (suite *NLPTestSuite) TestGetSynonyms() {
