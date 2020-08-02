@@ -2,6 +2,8 @@ package nlp_service
 
 import (
 	"fmt"
+	"math"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -10,6 +12,7 @@ import (
 	"code.mine/dating_server/types"
 	"github.com/bbalet/stopwords"
 
+	"github.com/agnivade/levenshtein"
 	stemmer "github.com/agonopol/go-stem"
 	AMZN "github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/comprehend"
@@ -31,26 +34,59 @@ import (
 // SS -> SS
 // S -> S
 
-// ProcessText –
-// first always clean the text – also remove low count words
-// get a score based on word count freq
-// get a sentiment analysis
-// get a score based on distance between distance of words (tirgams)
-// gt a score based on keywords/phrases
-// get a score based on entity extraction
+// GetSimilarTexts –
+func GetSimilarTexts(src types.TextSummary, texts []string) error {
+	var entityScore float64
+
+	articleSummaries := []types.TextSummary{}
+	for _, v := range texts {
+		as, err := GetTextBreakDown(v)
+		if err != nil {
+			continue
+		}
+		articleSummaries = append(articleSummaries, *as)
+	}
+
+	srcEntities := src.Entities
+
+	for _, candidate := range articleSummaries {
+		// GetNormalizedEntityScore
+		// GetNormalizedKeyphraseScore
+		// GetNormalizedTopWordsScore
+
+		maxAmtEntities := math.Max(float64(len(srcEntities)), float64(len(candidate.Entities)))
+		for _, srcEntity := range srcEntities {
+			for _, entity := range candidate.Entities {
+				distance := float64(levenshtein.ComputeDistance(entity, srcEntity))
+				maxString := math.Max(float64(len(entity)), float64(len(srcEntity)))
+				normalizedDistance := distance / maxString
+				entityScore += normalizedDistance
+			}
+		}
+		entityScore = entityScore / maxAmtEntities
+		// get entity score
+
+	}
+	return nil
+
+	// handle entities by levenshetein
+
+	// handle distance between keyphrases
+
+	// get top rated words by count
+}
 
 // GetTextBreakDown –
 func GetTextBreakDown(text string) (*types.TextSummary, error) {
 	textSummary := &types.TextSummary{}
 	text = RemoveStopWords(text)
 	text = RemoveLowCountWords(text)
+	text = strings.Replace(text, "'", "", -1)
+	// text, err := RemoveNonAlphaNumericFromString(text)
+	// if err != nil {
+	// 	return nil, err
+	// }
 	// remove punctiation and stuff?
-	//	text = GetStemsOfText(&text)
-	// get sentiment analsys here
-
-	// get word word rate score
-	// so get the top 5 or so wrods w highest rate and see if htere's a scor for that
-	// need to mak this a set...cant have same  forwords
 
 	sess, err := aws.GetSession()
 	if err != nil {
@@ -61,7 +97,6 @@ func GetTextBreakDown(text string) (*types.TextSummary, error) {
 	if err != nil {
 		return nil, err
 	}
-	// for top rated words you can/should only nouns you know?
 	textSummary.TopRatedWords = topRatedWords
 
 	entities, err := GetEntitiesOfText(text, client)
@@ -75,16 +110,46 @@ func GetTextBreakDown(text string) (*types.TextSummary, error) {
 		return nil, err
 	}
 	textSummary.Keyphrases = keyphrases
-	// you have to do key phrase extraction before stemming
-	// stem AFTER you have key phrase extraction
-	// key phrase exctraction
-	// you already cleaned the word
-	// but use distance algo to detect that
 
-	// then break into trigrams
-	// do same thing here
 	// ngrams := GetNGrams(text, 3)
 	return textSummary, nil
+}
+
+// GetSimilarityOfEntities –
+// https://usetrove.io/ check this for web crawling
+func GetSimilarityOfEntities(sourceEntities, candidateEntities []string) float64 {
+	var finalScore float64
+	var totalNormalizingLength int
+
+	// are we doing this somewhere else though when we get entities?
+	for i, v := range sourceEntities {
+		sourceEntities[i] = GetStemsOfText(v)
+		sourceEntities[i] = strings.ToLower(sourceEntities[i])
+
+	}
+	for i, v := range candidateEntities {
+		candidateEntities[i] = GetStemsOfText(v)
+		candidateEntities[i] = strings.ToLower(candidateEntities[i])
+	}
+
+	for _, srcEntity := range sourceEntities {
+
+		bestScoreCandidateEntity := math.Inf(1)
+		var bestWordCandidateEntity string
+		for _, candEntity := range candidateEntities {
+			distance := float64(levenshtein.ComputeDistance(candEntity, srcEntity))
+			if distance < bestScoreCandidateEntity {
+				bestScoreCandidateEntity = distance
+				bestWordCandidateEntity = candEntity
+			}
+		}
+		finalScore += bestScoreCandidateEntity
+		maxWordCount := math.Max(
+			float64(len(bestWordCandidateEntity)),
+			float64(len(srcEntity)))
+		totalNormalizingLength += int(maxWordCount)
+	}
+	return 1 - float64(finalScore)/float64(totalNormalizingLength)
 }
 
 // GetKeyphrasesOfText –
@@ -97,20 +162,24 @@ func GetKeyphrasesOfText(text string, client *comprehend.Comprehend) ([]string, 
 	if err != nil {
 		return nil, err
 	}
-	// attach a score and sort to get top 5
+	sort.Slice(result.KeyPhrases, func(p, q int) bool {
+		return *result.KeyPhrases[p].Score < *result.KeyPhrases[q].Score
+	})
+
 	keyphrases := []string{}
 	for _, v := range result.KeyPhrases {
-		keyphrases = append(keyphrases, *v.Text)
-	}
-	for i, v := range keyphrases {
-		temp := strings.Split(v, " ")
+		temp := strings.Split(*v.Text, " ")
 		for idx, val := range temp {
 			temp[idx] = GetStemOfWord(val)
 		}
 		str := strings.Join(temp, " ")
-		keyphrases[i] = str
+		keyphrases = append(keyphrases, str)
 	}
-	return keyphrases, nil
+	length := len(keyphrases)
+	if length > 5 {
+		length = 5
+	}
+	return keyphrases[:length], nil
 }
 
 // GetEntitiesOfText –
@@ -123,6 +192,10 @@ func GetEntitiesOfText(text string, client *comprehend.Comprehend) ([]string, er
 	if err != nil {
 		return nil, err
 	}
+	sort.Slice(result.Entities, func(p, q int) bool {
+		return *result.Entities[p].Score < *result.Entities[q].Score
+	})
+
 	entities := []string{}
 	set := map[string]bool{}
 	for _, v := range result.Entities {
@@ -132,10 +205,12 @@ func GetEntitiesOfText(text string, client *comprehend.Comprehend) ([]string, er
 			set[word] = true
 		}
 	}
-	for i, v := range entities {
-		entities[i] = GetStemOfWord(v)
+
+	length := len(entities)
+	if length > 5 {
+		length = 5
 	}
-	return entities, nil
+	return entities[:length], nil
 }
 
 // GetWordRateScore –
@@ -152,7 +227,8 @@ func GetWordRateScore(text string, client *comprehend.Comprehend) ([]types.TopRa
 	textAsSlice := []string{}
 	for _, tkn := range output.SyntaxTokens {
 		if *tkn.PartOfSpeech.Tag == "PROPN" ||
-			*tkn.PartOfSpeech.Tag == "PORN" ||
+			*tkn.PartOfSpeech.Tag == "PRON" ||
+			*tkn.PartOfSpeech.Tag == "NOUN" ||
 			*tkn.PartOfSpeech.Tag == "SYM" {
 			textAsSlice = append(textAsSlice, *tkn.Text)
 		}
@@ -189,6 +265,16 @@ func GetWordRateScore(text string, client *comprehend.Comprehend) ([]types.TopRa
 		length = 5
 	}
 	return topRatedWords[:length], nil
+}
+
+// RemoveNonAlphaNumericFromString –
+func RemoveNonAlphaNumericFromString(text string) (string, error) {
+	reg, err := regexp.Compile("[^a-zA-Z0-9]+")
+	if err != nil {
+		return "", err
+	}
+	processedString := reg.ReplaceAllString(text, "")
+	return processedString, nil
 }
 
 // RemoveLowCountWords –

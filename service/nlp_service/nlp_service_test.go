@@ -5,6 +5,9 @@ import (
 	"io/ioutil"
 	"testing"
 
+	"os"
+	"path/filepath"
+
 	"code.mine/dating_server/aws"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/suite"
@@ -66,12 +69,58 @@ func (suite *NLPTestSuite) TestNGrams() {
 }
 */
 
+// you should consider hardcoding in the synoyms into the struct
+// making it like a one time thing
+func (suite *NLPTestSuite) TestGetSimilarityOfEntities() {
+	sourceEntities := []string{"space", "satellite", "NASA", "moon"}
+	candidateEntities := []string{"outer space", "satellites", "moon crater", "NASA agency"}
+	scoreOne := GetSimilarityOfEntities(sourceEntities, candidateEntities)
+
+	candidateEntities = []string{"grilled cheese", "food", "pizza", "eating"}
+	scoreTwo := GetSimilarityOfEntities(sourceEntities, candidateEntities)
+	suite.True(scoreOne > scoreTwo)
+}
+
+func (suite *NLPTestSuite) TestGetSimilarTexts() {
+	articles := []string{}
+
+	root := "../../tests/articles"
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		content, err := ioutil.ReadFile(path)
+		suite.NoError(err)
+
+		text := string(content)
+		articles = append(articles, text)
+		return nil
+	})
+
+	content, err := ioutil.ReadFile("../../tests/articles/space_2.txt")
+	suite.NoError(err)
+
+	text := string(content)
+	textSummary, err := GetTextBreakDown(text)
+	suite.NoError(err)
+	suite.NotNil(textSummary)
+
+	suite.NoError(err)
+	GetSimilarTexts(*textSummary, articles)
+
+}
+
 func (suite *NLPTestSuite) TestGetTextBreakDown() {
 	content, err := ioutil.ReadFile("../../tests/articles/space_2.txt")
 	suite.NoError(err)
 
 	text := string(content)
 	textSummary, err := GetTextBreakDown(text)
+	suite.NoError(err)
+	suite.NotNil(textSummary)
+
+	content, err = ioutil.ReadFile("../../tests/articles/space_3.txt")
+	suite.NoError(err)
+
+	text = string(content)
+	textSummary, err = GetTextBreakDown(text)
 	suite.NoError(err)
 	suite.NotNil(textSummary)
 }
