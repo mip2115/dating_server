@@ -53,11 +53,6 @@ func main() {
 	}
 	defer db.Client.Disconnect(*db.Ctx)
 
-	err = aws.SetAWSConnection()
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
 	log.Println("Started server")
 	err = http.ListenAndServe(os.Getenv(PORT), BaseRouter)
 

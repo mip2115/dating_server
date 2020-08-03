@@ -25,7 +25,10 @@ type TopRatedWord struct {
 }
 
 type WordInformation struct {
-	Noun WordList `json:"noun" bson:"noun"`
+	WordList []string `json:"syn" bson:"syn"`
+	UUID     string   `json:"uuid" bson:"uuid"`
+	Word     string   `json:"word" bson:"word"`
+	// Noun WordList `json:"noun" bson:"noun"`
 }
 
 type WordList struct {

@@ -3,11 +3,13 @@ package nlp_service
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"testing"
 
 	"os"
 	"path/filepath"
 
+	"code.mine/dating_server/DB"
 	"code.mine/dating_server/aws"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/suite"
@@ -18,11 +20,6 @@ type NLPTestSuite struct {
 }
 
 func (suite *NLPTestSuite) SetupSuite() {
-
-	err := godotenv.Load("../../.env")
-	suite.NoError(err)
-	err = aws.SetAWSConnection()
-	suite.NoError(err)
 
 }
 func (suite *NLPTestSuite) SetupTest() {
@@ -41,15 +38,6 @@ func (suite *NLPTestSuite) TestGetSynset() {
 
 }
 
-/*
-// you dont want to use up all the Api calls
-func (suite *NLPTestSuite) TestGetWordInformation() {
-	res, err := GetWordInformation("dog")
-	suite.NoError(err)
-	suite.NotNil(res)
-}
-*/
-
 // try cycling through all the words in the synset?
 func (suite *NLPTestSuite) TestGetSimilarityOfSynsets() {
 	num, err := GetWordSimilarity("blue", "green")
@@ -62,6 +50,12 @@ func (suite *NLPTestSuite) TestGetSimilarityOfSynsets() {
 	suite.NoError(err)
 	fmt.Println(num)
 
+}
+
+func (suite *NLPTestSuite) TestGetWordInformation() {
+	wordInfo, err := GetWordInformation("dogs")
+	suite.NoError(err)
+	suite.NotNil(wordInfo)
 }
 
 /*
@@ -144,6 +138,20 @@ func (suite *NLPTestSuite) TestGetSynonyms() {
 }
 
 func TestNLPTestSuite(t *testing.T) {
+	err := godotenv.Load("../../.env")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	err = aws.SetAWSConnection()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	db, err := DB.SetupDB()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer db.Client.Disconnect(*db.Ctx)
 	suite.Run(t, new(NLPTestSuite))
 }
 

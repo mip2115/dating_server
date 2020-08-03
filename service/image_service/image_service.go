@@ -25,7 +25,7 @@ func CreateImage(imageToUpload *types.Image) (*types.Image, error) {
 	}
 
 	var foundImage *types.Image
-	res := c.FindOne(context.Background(), bson.M{"user_uuid": mapping.StrToV(imageToUpload.UserUUID), "rank": mapping.IntToV(imageToUpload.Rank)})
+	res := c.FindOne(context.Background(), bson.M{"user_uuid": mapping.StrToV(imageToUpload.UserUUID), "rank": mapping.Int64ToV(imageToUpload.Rank)})
 	if res.Err() != nil && !strings.Contains(res.Err().Error(), "no documents in result") {
 		return nil, res.Err()
 	}

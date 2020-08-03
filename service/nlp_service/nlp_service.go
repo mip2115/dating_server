@@ -1,6 +1,7 @@
 package nlp_service
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -10,10 +11,15 @@ import (
 	"sort"
 	"strings"
 
+	uuid "github.com/satori/go.uuid"
+
+	"code.mine/dating_server/DB"
 	"code.mine/dating_server/aws"
 	"code.mine/dating_server/mapping"
 	"code.mine/dating_server/types"
 	"github.com/bbalet/stopwords"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/agnivade/levenshtein"
 	stemmer "github.com/agonopol/go-stem"
@@ -155,8 +161,19 @@ func GetSimilarityOfEntities(sourceEntities, candidateEntities []string) float64
 	return 1 - float64(finalScore)/float64(totalNormalizingLength)
 }
 
+// work on this tomorrow
 // GetWordInformation –
 func GetWordInformation(word string) (*types.WordInformation, error) {
+	wordInfoFromDB, err := GetWordFromCollection(word)
+	if err != nil {
+		return nil, err
+	}
+	if wordInfoFromDB != nil {
+		return wordInfoFromDB, nil
+	}
+
+	wordInfo := types.WordInformation{}
+
 	baseURL := `https://words.bighugelabs.com/api/2`
 	apiKey := os.Getenv("BIG_HUGE_LABS_KEY")
 	url := fmt.Sprintf(`%s/%s/%s/json`, baseURL, apiKey, word)
@@ -164,9 +181,62 @@ func GetWordInformation(word string) (*types.WordInformation, error) {
 	if err != nil {
 		return nil, err
 	}
-	target := &types.WordInformation{}
-	json.NewDecoder(resp.Body).Decode(target)
-	return target, nil
+	values := []string{}
+	err = json.NewDecoder(resp.Body).Decode(&values)
+	if err != nil {
+		return nil, err
+	}
+
+	wordInfo.Word = word
+	wordInfo.WordList = values
+	err = AddWordToCollection(&wordInfo)
+	if err != nil {
+		return nil, err
+	}
+
+	return &wordInfo, nil
+}
+
+// GetWordFromCollection –
+// return the list of syns if it exists
+func GetWordFromCollection(word string) (*types.WordInformation, error) {
+	c, err := DB.GetCollection("word_synonyms")
+	if err != nil {
+		return nil, err
+	}
+	res := c.FindOne(context.Background(), bson.M{"word": word})
+	err = res.Err()
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	wordInfo := &types.WordInformation{}
+	err = res.Decode(wordInfo)
+	if err != nil {
+		return nil, err
+	}
+	return wordInfo, nil
+}
+
+// AddWordToCollection –
+func AddWordToCollection(wordInfo *types.WordInformation) error {
+	c, err := DB.GetCollection("word_synonyms")
+	if err != nil {
+		return err
+	}
+	newUUID, err := uuid.NewV4()
+	if err != nil {
+		return err
+	}
+	wordInfo.UUID = newUUID.String()
+	_, err = c.InsertOne(context.Background(), wordInfo)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // GetKeyphrasesOfText –
