@@ -23,3 +23,11 @@ type TopRatedWord struct {
 	Word  string
 	Score float32
 }
+
+type WordInformation struct {
+	Noun WordList `json:"noun" bson:"noun"`
+}
+
+type WordList struct {
+	Word []string `json:"syn" bson:"syn"`
+}

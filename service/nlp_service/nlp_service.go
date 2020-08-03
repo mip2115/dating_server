@@ -1,8 +1,11 @@
 package nlp_service
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
+	"net/http"
+	"os"
 	"regexp"
 	"sort"
 	"strings"
@@ -150,6 +153,20 @@ func GetSimilarityOfEntities(sourceEntities, candidateEntities []string) float64
 		totalNormalizingLength += int(maxWordCount)
 	}
 	return 1 - float64(finalScore)/float64(totalNormalizingLength)
+}
+
+// GetWordInformation –
+func GetWordInformation(word string) (*types.WordInformation, error) {
+	baseURL := `https://words.bighugelabs.com/api/2`
+	apiKey := os.Getenv("BIG_HUGE_LABS_KEY")
+	url := fmt.Sprintf(`%s/%s/%s/json`, baseURL, apiKey, word)
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	target := &types.WordInformation{}
+	json.NewDecoder(resp.Body).Decode(target)
+	return target, nil
 }
 
 // GetKeyphrasesOfText –

@@ -41,6 +41,15 @@ func (suite *NLPTestSuite) TestGetSynset() {
 
 }
 
+/*
+// you dont want to use up all the Api calls
+func (suite *NLPTestSuite) TestGetWordInformation() {
+	res, err := GetWordInformation("dog")
+	suite.NoError(err)
+	suite.NotNil(res)
+}
+*/
+
 // try cycling through all the words in the synset?
 func (suite *NLPTestSuite) TestGetSimilarityOfSynsets() {
 	num, err := GetWordSimilarity("blue", "green")
@@ -71,6 +80,8 @@ func (suite *NLPTestSuite) TestNGrams() {
 
 // you should consider hardcoding in the synoyms into the struct
 // making it like a one time thing
+// so if yo're getting a noramlized score, then you can make it count for diff things
+// like different %'s.
 func (suite *NLPTestSuite) TestGetSimilarityOfEntities() {
 	sourceEntities := []string{"space", "satellite", "NASA", "moon"}
 	candidateEntities := []string{"outer space", "satellites", "moon crater", "NASA agency"}
