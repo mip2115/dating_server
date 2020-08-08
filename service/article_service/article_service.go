@@ -9,6 +9,7 @@ import (
 
 	"code.mine/dating_server/DB"
 	"code.mine/dating_server/mapping"
+	nlp "code.mine/dating_server/service/nlp_service"
 	"code.mine/dating_server/types"
 	uuid "github.com/satori/go.uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -34,6 +35,11 @@ func DeleteArticleRecordByUUID(uuid *string) error {
 	return nil
 }
 
+func AddSynsForText(text string) error {
+	err := nlp.AddSynsForText(text)
+	return err
+}
+
 // if user uses a link, you should still end up calling this at a later point
 func CreateArticleRecord(userUUID *string, text *string) error {
 	wordCount := len(mapping.StrToV(text))
@@ -52,12 +58,25 @@ func CreateArticleRecord(userUUID *string, text *string) error {
 		return err
 	}
 
+	// add the synonyms here.
+	err = AddSynsForText(*text)
+	if err != nil {
+		return err
+	}
+
+	// you need to get the rest of the information here
+	summary, err := nlp.GetTextBreakDown(mapping.StrToV(text))
+	if err != nil {
+		return err
+	}
+
 	article := &types.Article{
 		UserUUID:    userUUID,
 		UUID:        mapping.StrToPtr(uuid.String()),
 		WordCount:   mapping.Int64ToPtr(int64(wordCount)),
 		DateCreated: mapping.TimeToPtr(time.Now()),
 		Text:        text,
+		Summary:     summary,
 	}
 
 	c, err := DB.GetCollection("articles")
@@ -92,7 +111,7 @@ func GetArticleMatchesForUser(userUUID *string) ([]*types.Article, error) {
 	res := c.FindOne(context.Background(), bson.M{"uuid": mapping.StrToV(userUUID)})
 	if res.Err() != nil {
 		if res.Err() == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("no user found for user uuid ", mapping.StrToV(userUUID))
+			return nil, fmt.Errorf("no user found for user uuid %s", mapping.StrToV(userUUID))
 		}
 		return nil, res.Err()
 	}
@@ -101,7 +120,7 @@ func GetArticleMatchesForUser(userUUID *string) ([]*types.Article, error) {
 		return nil, err
 	}
 	if user == nil {
-		return nil, fmt.Errorf("user is nil for user uuid ", mapping.StrToV(userUUID))
+		return nil, fmt.Errorf("user is nil for user uuid %s", mapping.StrToV(userUUID))
 	}
 
 	// fetch all users by filter
@@ -112,7 +131,7 @@ func GetArticleMatchesForUser(userUUID *string) ([]*types.Article, error) {
 	cursor, err := c.Find(context.Background(), filter)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("no candidates found for user uuid ", mapping.StrToV(userUUID))
+			return nil, fmt.Errorf("no candidates found for user uuid %s", mapping.StrToV(userUUID))
 		}
 		return nil, err
 	}
@@ -121,7 +140,7 @@ func GetArticleMatchesForUser(userUUID *string) ([]*types.Article, error) {
 		return nil, err
 	}
 	if len(userCandidates) == 0 {
-		return nil, fmt.Errorf("no candidates found for user uuid ", mapping.StrToV(userUUID))
+		return nil, fmt.Errorf("no candidates found for user uuid %s", mapping.StrToV(userUUID))
 	}
 
 	// get the users articles
@@ -135,7 +154,7 @@ func GetArticleMatchesForUser(userUUID *string) ([]*types.Article, error) {
 	cursor, err = c.Find(context.Background(), bson.M{"user_uuid": mapping.StrToV(userUUID)})
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("no articles found for user uuid ", mapping.StrToV(userUUID))
+			return nil, fmt.Errorf("no articles found for user uuid %s", mapping.StrToV(userUUID))
 		}
 		return nil, err
 	}
@@ -144,7 +163,7 @@ func GetArticleMatchesForUser(userUUID *string) ([]*types.Article, error) {
 		return nil, err
 	}
 	if len(userArticles) == 0 {
-		return nil, fmt.Errorf("no articles found for user uuid ", mapping.StrToV(userUUID))
+		return nil, fmt.Errorf("no articles found for user uuid %s", mapping.StrToV(userUUID))
 	}
 
 	articleUserUUIDs := []bson.M{}
@@ -154,7 +173,7 @@ func GetArticleMatchesForUser(userUUID *string) ([]*types.Article, error) {
 	cursor, err = c.Find(context.Background(), bson.M{"$or": articleUserUUIDs})
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("no articles found for user candidates for user uuid ", mapping.StrToV(userUUID))
+			return nil, fmt.Errorf("no articles found for user candidates for user uuid %s", mapping.StrToV(userUUID))
 		}
 		return nil, err
 	}

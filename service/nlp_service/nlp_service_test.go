@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"strings"
 	"testing"
 
 	"os"
@@ -52,8 +53,43 @@ func (suite *NLPTestSuite) TestGetSimilarityOfSynsets() {
 
 }
 
+// still need better way to handle things like word not found
+// and lines vs line
+func (suite *NLPTestSuite) TestAddWordInformation() {
+
+	content, err := ioutil.ReadFile("../../tests/articles/solar_1.txt")
+	suite.NoError(err)
+
+	contentAsString := RemoveStopWords(string(content))
+	contentAsString = "world"
+	contentAsSlice := strings.Split(contentAsString, " ")
+	frequency := map[string]int{}
+	for _, v := range contentAsSlice {
+		index := strings.Index(v, "'")
+		if index != -1 {
+			v = v[:index]
+		}
+		frequency[v]++
+	}
+
+	for k := range frequency {
+
+		if len(k) >= 3 {
+			wordInfo, err := GetWordInformation(k)
+			if err != nil {
+				continue
+			}
+			suite.NoError(err)
+			suite.NotNil(wordInfo)
+		}
+
+	}
+
+}
+
+// sick too https://mholt.github.io/json-to-go/
 func (suite *NLPTestSuite) TestGetWordInformation() {
-	wordInfo, err := GetWordInformation("dogs")
+	wordInfo, err := GetWordInformation("cats")
 	suite.NoError(err)
 	suite.NotNil(wordInfo)
 }
