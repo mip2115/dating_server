@@ -170,17 +170,16 @@ func LikeProfile(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	likedProfileUUID := params["likedProfileUUID"]
 	// if m isnt' nil then a match occuredd
-	err := user_service.LikeProfile(&userUUID, &likedProfileUUID)
+	err, _ := user_service.LikeProfile(&userUUID, &likedProfileUUID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "bar error", http.StatusBadRequest)
 		return
 	}
-	m := getMatch
 	response := types.MatchResponse{}
 	response.Token = &tkString
-	if m != nil {
-		response.Match = m
-	}
+	// if m != nil {
+	// 	response.Match = m
+	// }
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }

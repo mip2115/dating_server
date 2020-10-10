@@ -50,8 +50,8 @@ func DeleteMatch(w http.ResponseWriter, r *http.Request) {
 	deleteMatchID := params["mid"]
 	profileBID := params["bid"]
 	m := &types.MatchRequest{}
-	m.UserAUUID = &userID
-	m.UserBUUID = &profileBID
+	m.UserOneUUID = &userID
+	m.UserTwoUUID = &profileBID
 	m.UUID = &deleteMatchID
 	err := match_service.DeleteMatch(m)
 	if err != nil {
