@@ -1,8 +1,14 @@
-package youtubeService
+package youtubeservice
 
 import (
 	"testing"
 
+	"code.mine/dating_server/mapping"
+	"go.mongodb.org/mongo-driver/mongo/options"
+
+	mockRepo "code.mine/dating_server/mocks/repo"
+	"code.mine/dating_server/types"
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -39,6 +45,33 @@ func (suite *YoutubeServiceTestSuite) TestGetYoutubeVideoDetails() {
 	response, err := GetYoutubeVideoDetails(id)
 	suite.NoError(err)
 	suite.NotNil(response)
+}
+
+func (suite *YoutubeServiceTestSuite) TestGetEligibleUsers() {
+	mockCtrl := gomock.NewController(suite.T())
+	defer mockCtrl.Finish()
+
+	mockRepo := mockRepo.NewMockRepo(mockCtrl)
+
+	youtube := YoutubeController{
+		Repo: mockRepo,
+	}
+
+	user := &types.User{
+		UUID:          mapping.StrToPtr("some-uuid"),
+		PartnerGender: mapping.StrToPtr("partnerGender"),
+		City:          mapping.StrToPtr("city"),
+	}
+	returnedUsers := []*types.User{user}
+
+	options := options.Find()
+	options.SetLimit(int64(50000))
+
+	mockRepo.EXPECT().GetUsersByFilter(gomock.Any(), gomock.Any()).Return(returnedUsers, nil)
+	users, err := youtube.GetEligibleUsers(user)
+	suite.Require().NoError(err)
+	suite.Require().NotNil(users)
+	// suite.Require().Equal(1, len(users))
 }
 
 func TestYoutubeServiceTestSuite(t *testing.T) {

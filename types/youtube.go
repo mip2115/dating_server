@@ -48,8 +48,10 @@ type DetailsItem struct {
 }
 
 // VideoDetailsResponse -
-type VideoDetailsResponse struct {
-	Items []DetailsItem `json: "items, omitempty"`
+type UserVideoItem struct {
+	UserUUID *string       `json: "user_uuid"`
+	UUID     *string       `json: "uuid"`
+	Items    []DetailsItem `json: "items, omitempty"`
 }
 
 // VideoIDResponse -
