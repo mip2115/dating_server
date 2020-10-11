@@ -50,3 +50,33 @@ func (mr *MockRepoMockRecorder) GetUsersByFilter(arg0, arg1 interface{}) *gomock
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsersByFilter", reflect.TypeOf((*MockRepo)(nil).GetUsersByFilter), arg0, arg1)
 }
+
+// GetVideosByAllUserUUIDs mocks base method.
+func (m *MockRepo) GetVideosByAllUserUUIDs(arg0 []*string) ([]*types.UserVideoItem, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetVideosByAllUserUUIDs", arg0)
+	ret0, _ := ret[0].([]*types.UserVideoItem)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetVideosByAllUserUUIDs indicates an expected call of GetVideosByAllUserUUIDs.
+func (mr *MockRepoMockRecorder) GetVideosByAllUserUUIDs(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVideosByAllUserUUIDs", reflect.TypeOf((*MockRepo)(nil).GetVideosByAllUserUUIDs), arg0)
+}
+
+// GetVideosByUserUUID mocks base method.
+func (m *MockRepo) GetVideosByUserUUID(arg0 *string) ([]*types.UserVideoItem, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetVideosByUserUUID", arg0)
+	ret0, _ := ret[0].([]*types.UserVideoItem)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetVideosByUserUUID indicates an expected call of GetVideosByUserUUID.
+func (mr *MockRepoMockRecorder) GetVideosByUserUUID(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVideosByUserUUID", reflect.TypeOf((*MockRepo)(nil).GetVideosByUserUUID), arg0)
+}

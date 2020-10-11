@@ -21,10 +21,11 @@ type Localized struct {
 
 // Snippet -
 type Snippet struct {
-	Title      string    `json: "title, omitempty"`
-	Tags       []string  `json: "tags, omitempty"`
-	CatgeoryID string    `json: "categoryId, omitempty"`
-	Localized  Localized `json: "localized, omitempty"`
+	Title       string    `json: "title, omitempty"`
+	Description string    `json: description, omitempty"`
+	Tags        []string  `json: "tags, omitempty"`
+	CategoryID  int       `json: "categoryId, omitempty"`
+	Localized   Localized `json: "localized, omitempty"`
 }
 
 // VideoID -
