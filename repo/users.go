@@ -4,12 +4,110 @@ import (
 	"context"
 	"errors"
 
+	"code.mine/dating_server/mapping"
+	uuid "github.com/satori/go.uuid"
+	"golang.org/x/crypto/bcrypt"
+
 	"code.mine/dating_server/DB"
 	"code.mine/dating_server/types"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// CreateUser -
+func CreateUser(user *types.User) (*string, error) {
+	pass, err := bcrypt.GenerateFromPassword([]byte(*user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+	user.Password = mapping.StrToPtr(string(pass))
+	c, err := DB.GetCollection("users")
+	if err != nil {
+		return nil, err
+	}
+	u, err := uuid.NewV4()
+	if err != nil {
+		return nil, err
+	}
+	user.UUID = mapping.StrToPtr(u.String())
+	_, err = c.InsertOne(context.Background(), user) // insert the post
+	if err != nil {
+		return nil, err
+	}
+	return user.UUID, nil
+}
+
+// GetTrackedLikeByUserUUID -
+func GetTrackedLikeByUserUUID(userGettingLiked, userPerformingLike *string) (*types.TrackedLike, error) {
+	var trackedLike *types.TrackedLike
+	c, err := DB.GetCollection("trackedLike")
+	if err != nil {
+		return nil, err
+	}
+	filter := bson.M{
+		"userPerformingLike": mapping.StrToV(userGettingLiked),
+		"userGettingLiked":   mapping.StrToV(userPerformingLike),
+	}
+
+	resp := c.FindOne(context.Background(), filter)
+	err = resp.Err()
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		return nil, err
+	}
+	if err = resp.Decode(trackedLike); err != nil {
+		return nil, err
+	}
+	return trackedLike, nil
+}
+
+// UpdateTrackedLikeByUUID -
+func UpdateTrackedLikeByUUID(uuid *string, filter bson.M, updateParams bson.M) error {
+	c, err := DB.GetCollection("trackedLike")
+	if err != nil {
+		return err
+	}
+	resp, err := c.UpdateOne(context.Background(), filter, updateParams)
+	if resp.ModifiedCount == 0 {
+		return errors.New("no trackedLike documents modified")
+	}
+	return nil
+
+}
+
+// SaveMatch -
+func SaveMatch(newMatch *types.Match) error {
+	c, err := DB.GetCollection("matches")
+	if err != nil {
+		return err
+	}
+
+	_, err = c.InsertOne(context.Background(), newMatch)
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
+
+// CreateTrackedLike -
+func CreateTrackedLike(trackedLike *types.TrackedLike) (*types.TrackedLike, error) {
+	c, err := DB.GetCollection("trackedLike")
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = c.InsertOne(context.Background(), trackedLike)
+	if err != nil {
+		return nil, err
+	}
+	return trackedLike, nil
+}
+
+// GetUsersByFilter -
 func GetUsersByFilter(filters *bson.M, options *options.FindOptions) ([]*types.User, error) {
 	if filters == nil {
 		return nil, errors.New("filters is nil")
@@ -29,44 +127,58 @@ func GetUsersByFilter(filters *bson.M, options *options.FindOptions) ([]*types.U
 	return users, nil
 }
 
-func GetVideosByAllUserUUIDs(userUUIDs []*string) ([]*types.UserVideoItem, error) {
-	if userUUIDs == nil {
-		return nil, errors.New("no userUUIDs provided")
-	}
-
-	c, err := DB.GetCollection("videos")
+func GetUserByEmail(email *string) (*types.User, error) {
+	c, err := DB.GetCollection("users")
 	if err != nil {
 		return nil, err
 	}
-	filter := bson.M{
-		"user_uuid": bson.M{
-			"$in": userUUIDs,
-		},
+
+	var user *types.User
+	resp := c.FindOne(context.Background(), bson.D{{Key: "email", Value: mapping.StrToV(user.Email)}})
+	if resp.Err() != nil {
+		return nil, resp.Err()
 	}
-	cursor, err := c.Find(context.Background(), filter)
-	videos := []*types.UserVideoItem{}
-	if err = cursor.All(context.Background(), &videos); err != nil {
+	err = resp.Decode(user)
+	if err == mongo.ErrNoDocuments {
+		return nil, nil
+	}
+	if err != nil {
 		return nil, err
 	}
-	return videos, nil
+	return user, nil
 }
 
-// GetVideosByUserUUID -
-func GetVideosByUserUUID(userUUID *string) ([]*types.UserVideoItem, error) {
-	if userUUID == nil {
-		return nil, errors.New("no userUUID provided")
+// UpdateUserByUUID -
+func UpdateUserByUUID(uuid *string, fieldsToUpdate []bson.D) error {
+	c, err := DB.GetCollection("users")
+	if err != nil {
+		return err
 	}
+	update := bson.D{{Key: "$set",
+		Value: fieldsToUpdate,
+	}}
+	_, err = c.UpdateOne(
+		context.Background(),
+		bson.M{"uuid": mapping.StrToV(uuid)},
+		update,
+	)
+	if err != nil {
+		return err
+	}
+	return nil
 
-	c, err := DB.GetCollection("videos")
+}
+
+// CheckUserLoginPasswordByEmail -
+func CheckUserLoginPasswordByEmail(email, password *string) (*types.User, error) {
+	user, err := GetUserByEmail(email)
 	if err != nil {
 		return nil, err
 	}
 
-	videos := []*types.UserVideoItem{}
-	cursor, err := c.Find(context.Background(), bson.M{"user_uuid": *userUUID})
-	err = cursor.All(context.Background(), videos)
+	err = bcrypt.CompareHashAndPassword([]byte(*user.Password), ([]byte(*password)))
 	if err != nil {
 		return nil, err
 	}
-	return videos, nil
+	return user, nil
 }

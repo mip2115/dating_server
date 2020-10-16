@@ -1,13 +1,12 @@
-package image_service
+package imageservice
 
 import (
-	"github.com/joho/godotenv"
-	"code.mine/dating_server/server/DB"
-	"code.mine/dating_server/server/scripts"
+
 	//"github.com/kama/server/types"
-	"github.com/stretchr/testify/suite"
-	"log"
+
 	"testing"
+
+	"github.com/stretchr/testify/suite"
 )
 
 var (
@@ -22,16 +21,10 @@ type ImageTestSuite struct {
 }
 
 func (suite *ImageTestSuite) SetupSuite() {
-	pathEnviroment = "../../.env"
-	if err := godotenv.Load(pathEnviroment); err != nil {
-		log.Fatal(err)
-	}
-	_, err := DB.SetupDB()
-	suite.Nil(err)
+
 }
 func (suite *ImageTestSuite) SetupTest() {
-	err := scripts.LoadDB()
-	suite.Nil(err)
+
 }
 
 func (suite *ImageTestSuite) TearDownAllSuite() {
@@ -39,32 +32,6 @@ func (suite *ImageTestSuite) TearDownAllSuite() {
 }
 
 func (suite *ImageTestSuite) TearDownTest() {
-}
-
-func (suite *ImageTestSuite) TestReadImageByImageUUID() {
-	err := scripts.LoadDB()
-	suite.Nil(err)
-
-	img, err := GetImageByImageUUID(&ExisingImageUUID)
-	suite.Nil(err)
-	suite.NotNil(img)
-	suite.Equal(ExisingImageUUID, *img.UUID)
-}
-
-func (suite *ImageTestSuite) TestCreateImage() {
-	err := scripts.LoadDB()
-	suite.Nil(err)
-
-	userUUID := "user-uuid"
-	link := "link"
-	key := "key"
-	img, err := CreateImage(&userUUID, &link, &key)
-	suite.Nil(err)
-	suite.NotNil(img)
-	returnedImage, err := GetImageByImageUUID(img.UUID)
-	suite.Nil(err)
-	suite.NotNil(returnedImage)
-
 }
 
 func TestImageTestSuite(t *testing.T) {

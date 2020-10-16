@@ -1,9 +1,6 @@
-package user_service
+package userservice
 
 import (
-	//	"../auth"
-	//"../mapping"
-	//"../types"
 
 	"context"
 	"errors"
@@ -21,38 +18,43 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func CreateUser(user *types.User) (*string, error) {
+type UserController strct{
+	repo repo.Repo
+}
+
+// make sure to also set up google/fb auth
+func (c *UserController) CreateUser(user *types.User) (*string, error) {
 	user.FutureDates = []*string{}
 	user.PastDates = []*string{}
 	user.Matches = []*string{}
 	user.UsersLikedMe = []*string{}
 	user.RecentlyMatched = []*string{}
 
-	res, err := checkUserExists(user)
+	res, err := c.repo.GetUserByEmail(user.Email)
 	if err != nil {
 		return nil, err
 	}
-	if res == false {
+	if res != nil {
 		return nil, errors.New("User exists")
 	}
-	// some error checking
-	err = verifyInfo(user)
+	err = verifyEmailAndPassword(user)
 	if err != nil {
 		return nil, err
 	}
-	insertedID, err := createUser(user)
+	insertedID, err := c.repo.CreateUser(user)
 	if err != nil {
 		return nil, err
 	}
 	return insertedID, nil
 }
 
-// TODO –
-// best way to do this is just to create a "tracked_like" kind of situation
-// upload a record and then you can also tell if
-// they both liked each other
-// always set UserOne as the first to make the like
-func LikeProfile(userUUID *string, likedProfileUUID *string) (*types.TrackedLike, error) {
+// trackedLike
+// userOne likes userTwo
+// so we create a tracked like
+// if userTwo likesback user one, search for a tracked like that exists
+// already where user one liked userTwo.
+// If yes, create a match and update Connected
+func LikeProfile(userGettingLiked *string, userPerformingLike *string) (*types.TrackedLike, error) {
 
 	// first check if there is a trackedLike
 	// if there is, then just update it.
@@ -61,79 +63,54 @@ func LikeProfile(userUUID *string, likedProfileUUID *string) (*types.TrackedLike
 	if err != nil {
 		return nil, err
 	}
-
-	trackedLike := &types.TrackedLike{}
-	query := []bson.D{bson.D{{Key: "userOneUUID", Value: *userUUID}}, {{Key: "userOneUUID", Value: *likedProfileUUID}}}
-	res := c.FindOne(context.Background(), bson.D{{Key: "$or", Value: query}})
-	err = res.Err()
-
-	var createTrackedLike bool
-	if strings.Contains(err.Error(), "no documents in result") {
-		createTrackedLike = true
-	}
-	if err != nil && !createTrackedLike {
+	var trackedLike *types.TrackedLike
+	trackedLike, err := c.repo.GetTrackedLikeByUserUUID(userGettingLiked,userPerformingLike)
+	if err != nil {
 		return nil, err
 	}
-	if createTrackedLike {
+	if trackedLike == nil {
 		newUUID, err := uuid.NewV4()
 		if err != nil {
 			return nil, err
 		}
 		trackedLike.UUID = mapping.StrToPtr(newUUID.String())
-		trackedLike.UserOneUUID = userUUID
-		trackedLike.UserTwoUUID = likedProfileUUID
-		trackedLike.UserOneLiked = true
-		_, err = c.InsertOne(context.Background(), trackedLike)
+		trackedLike.UserPerformingLikeUUID = userPerformingLike
+		trackedLike.UserGettingLikedUUID = userGettingLiked
+		trackedLike, err := c.repo.CreateTrackedLike(trackedLike)
 		if err != nil {
 			return nil, err
 		}
 		return trackedLike, nil
-	}
-	res.Decode(trackedLike)
-	if trackedLike.UserOneUUID == nil {
-		return nil, fmt.Errorf("user one cannot be nil in tracked like %s ", mapping.StrToV(trackedLike.UUID))
-	}
-	if trackedLike.UserTwoUUID == nil {
-		return nil, fmt.Errorf("user two should not be nil in tracked like %s ", mapping.StrToV(trackedLike.UUID))
-	}
-	if mapping.StrToV(trackedLike.UserOneUUID) != mapping.StrToV(likedProfileUUID) {
-		return nil, fmt.Errorf("user one should be the profile we're liking in tracked like %s ", mapping.StrToV(trackedLike.UUID))
-	}
-	if !trackedLike.UserOneLiked {
-		return nil, fmt.Errorf("user one liked should be true in tracked like %s ", mapping.StrToV(trackedLike.UUID))
-	}
-	if trackedLike.MatchUUID != nil {
-		return nil, fmt.Errorf("match uuid in tracked like %s should be nil", mapping.StrToV(trackedLike.UUID))
-	}
-
-	fieldsToUpdate := bson.D{}
-	fieldsToUpdate = append(fieldsToUpdate, primitive.E{Key: "userTwoLiked", Value: true})
-
-	// now generate the match
-	match := &types.Match{}
-	match.UserOneUUID = trackedLike.UserOneUUID
-	match.UserTwoUUID = trackedLike.UserTwoUUID
-	insertedID, err := ms.CreateMatch(match)
+	} 
+	// now create a new match
+	newMatchUUID, err := uuid.NewV4()
 	if err != nil {
 		return nil, err
 	}
-	fieldsToUpdate = append(fieldsToUpdate, primitive.E{Key: "match_uuid", Value: mapping.StrToV(insertedID)})
-
-	trackedLike.UserTwoLiked = true
-	trackedLike.MatchUUID = insertedID
-	update := bson.D{{Key: "$set",
-		Value: fieldsToUpdate,
-	}}
-	_, err = c.UpdateOne(
-		context.Background(),
-		bson.M{"uuid": mapping.StrToV(trackedLike.UUID)},
-		update,
-	)
+	t := time.Now()
+	newMatch := &types.Match{
+		UUID: mapping.StrToPtr(newMatchUUID.String())
+		UserOneUUID: UserPerformingLikeUUID,
+		UserTwoUUID: UserGettingLikedUUID,
+		DateCreated: &t,
+		DateUpdated: &t,
+		MatchUUID: newMatchUUID,
+	}
+	updateParams := bson.M{
+		"matchUUID": mapping.StrToV(newMatchUUID),
+	}
+	filter := bson.M {
+		"uuid":mapping.StrToV(trackedLike.UUID),
+	}
+	err = c.repo.UpdateTrackedLikeByUUID(trackedLike.UUID, filter, updateParams)
+	if err != nil {
+		return nil, err
+	}
+	err = c.repo.SaveMatch(newMatch)
 	if err != nil {
 		return nil, err
 	}
 	return trackedLike, nil
-
 }
 
 func LoginUser(user *types.User) (*types.User, error) {
@@ -141,28 +118,16 @@ func LoginUser(user *types.User) (*types.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	c, err := DB.GetCollection("users")
+	checkedUser, err := c.repo.CheckUserLoginPasswordByEmail(user.Email, user.Password)
 	if err != nil {
 		return nil, err
 	}
-	res := c.FindOne(context.Background(), bson.D{{Key: "email", Value: user.Email}})
-	if res.Err() != nil {
-		return nil, res.Err()
-	}
-	returnedUser := &types.User{}
-	err = bcrypt.CompareHashAndPassword([]byte(*returnedUser.Password), ([]byte(*user.Password)))
-	if err != nil {
-		return nil, err
-	}
-	return returnedUser, nil
+	return checkedUser, nil
 }
+
 
 // handle reseting ages differently because it should retrigger a search
 func UpdateUser(user *types.User) error {
-	c, err := DB.GetCollection("users")
-	if err != nil {
-		return err
-	}
 	fieldsToUpdate := bson.D{}
 	if user.Email != nil {
 		fieldsToUpdate = append(fieldsToUpdate, primitive.E{Key: "email", Value: *user.Email})
@@ -210,37 +175,31 @@ func UpdateUser(user *types.User) error {
 		fieldsToUpdate = append(fieldsToUpdate, primitive.E{Key: "purpose", Value: *user.Purpose})
 	}
 
-	update := bson.D{{Key: "$set",
-		Value: fieldsToUpdate,
-	}}
-	_, err = c.UpdateOne(
-		context.Background(),
-		bson.M{"uuid": *user.UUID},
-		update,
-	)
+	err = c.repo.UpdateUserByUUID(user.UUID, fieldToUpdate)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func GetAllUsers() ([]types.User, error) {
-	c, err := DB.GetCollection("users")
-	if err != nil {
-		return nil, err
-	}
-	cursor, err := c.Find(context.Background(), bson.D{})
-	if err != nil {
-		return nil, err
-	}
-	users := []types.User{}
-	if err = cursor.All(context.Background(), &users); err != nil {
-		return nil, err
-	}
-	return users, nil
-}
+// func GetAllUsers() ([]types.User, error) {
+// 	c, err := DB.GetCollection("users")
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	cursor, err := c.Find(context.Background(), bson.D{})
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	users := []types.User{}
+// 	if err = cursor.All(context.Background(), &users); err != nil {
+// 		return nil, err
+// 	}
+// 	return users, nil
+// }
 
-func DeleteUser(userUUID *string) error {
+// pick up here
+func DeleteUserByUUID(userUUID *string) error {
 	c, err := DB.GetCollection("users")
 	if err != nil {
 		return err
@@ -252,7 +211,7 @@ func DeleteUser(userUUID *string) error {
 	return nil
 }
 
-func GetUser(userUUID *string) (*types.User, error) {
+func GetUserByUUID(userUUID *string) (*types.User, error) {
 	c, err := DB.GetCollection("users")
 	if err != nil {
 		return nil, err
@@ -269,6 +228,7 @@ func GetUser(userUUID *string) (*types.User, error) {
 	return user, nil
 }
 
+// move this to images
 func SaveUserImage(userUUID *string, imgUUID *string) error {
 	c, err := DB.GetCollection("users")
 	if err != nil {
@@ -303,41 +263,6 @@ func RemoveUserImage(userUUID *string, imgUUID *string) error {
 	return nil
 }
 
-// remove userIDA from list of users that likes userIDB
-func pullProfileFromUserLikes(userAUUID *string, userBUUID *string) error {
-	c, err := DB.GetCollection("users")
-	if err != nil {
-		return err
-	}
-
-	update := bson.M{"$pull": bson.M{"userslikedme": userAUUID}}
-	_, err = c.UpdateOne(
-		context.Background(),
-		bson.M{"uuid": *userBUUID},
-		update,
-	)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func addProfileToUserLikes(profileAUUID *string, profileBUUID *string) error {
-	c, err := DB.GetCollection("users")
-	if err != nil {
-		return err
-	}
-	update := bson.M{"$push": bson.M{"userslikedme": *profileAUUID}}
-	_, err = c.UpdateOne(
-		context.Background(),
-		bson.M{"uuid": *profileBUUID},
-		update,
-	)
-	if err != nil {
-		return err
-	}
-	return nil
-}
 
 func getProfilesLikedUser(userUUID *string) ([]*string, error) {
 	c, err := DB.GetCollection("users")
@@ -348,30 +273,6 @@ func getProfilesLikedUser(userUUID *string) ([]*string, error) {
 	user := types.User{}
 	res.Decode(&user)
 	return user.UsersLikedMe, nil
-}
-
-// use and return UUID's
-func createUser(user *types.User) (*string, error) {
-	pass, err := bcrypt.GenerateFromPassword([]byte(*user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return nil, err
-	}
-	user.Password = mapping.StrToPtr(string(pass))
-	c, err := DB.GetCollection("users")
-	if err != nil {
-		return nil, err
-	}
-	u, err := uuid.NewV4()
-	if err != nil {
-		return nil, err
-	}
-	user.UUID = mapping.StrToPtr(u.String())
-	_, err = c.InsertOne(context.Background(), user) // insert the post
-	if err != nil {
-		return nil, err
-	}
-	return user.UUID, nil
-
 }
 
 func verifyInfo(user *types.User) error {
@@ -387,21 +288,6 @@ func verifyInfo(user *types.User) error {
 	return nil
 }
 
-func checkUserExists(user *types.User) (bool, error) {
-	err := verifyEmailAndPassword(user)
-	if err != nil {
-		return false, err
-	}
-	c, err := DB.GetCollection("users")
-	if err != nil {
-		return false, err
-	}
-	resp := c.FindOne(context.Background(), bson.D{{Key: "email", Value: user.Email}})
-	if resp.Err() != nil {
-		return true, nil
-	}
-	return false, nil
-}
 
 func verifyEmailAndPassword(user *types.User) error {
 	if user.Email == nil {
@@ -411,13 +297,4 @@ func verifyEmailAndPassword(user *types.User) error {
 		return errors.New("must provide password")
 	}
 	return nil
-}
-
-func contains(arr []*string, tar string) bool {
-	for _, v := range arr {
-		if *v == tar {
-			return true
-		}
-	}
-	return false
 }

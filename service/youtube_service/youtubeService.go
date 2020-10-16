@@ -11,6 +11,7 @@ import (
 	"code.mine/dating_server/repo"
 	"code.mine/dating_server/types"
 	"github.com/agnivade/levenshtein"
+	stemmer "github.com/agonopol/go-stem"
 	"github.com/bbalet/stopwords"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -30,6 +31,7 @@ func GetYoutubeVideo(youtubeURL string) {
 
 }
 
+// YOUTUBE ID IS IN THE URL
 // GetYoutubeVideoDetails -
 func GetYoutubeVideoDetails(videoID *string) (*types.UserVideoItem, error) {
 	// https://www.googleapis.com/youtube/v3/videos?id=D95qIe5pLuA&key=AIzaSyBhFXscTPZr892Uj5h2wRghkFAqTPYtcEg&part=snippet,statistics,topicDetails
@@ -167,7 +169,10 @@ func (youtube *YoutubeController) RankAndMatchYoutubeVideos(user *types.User) ([
 			sortedUsers = append(sortedUsers, userUUIDToUser[*videoScore.Video.UserUUID])
 		}
 	}
-	return sortedUsers, nil
+	if len(sortedUsers) <= 3 {
+		return sortedUsers, nil
+	}
+	return sortedUsers[:3], nil
 
 }
 
@@ -175,7 +180,7 @@ func (youtube *YoutubeController) RankAndMatchYoutubeVideos(user *types.User) ([
 func getTagsFromVideo(video *types.UserVideoItem) []string {
 	userTags := []string{}
 	for _, tag := range video.Items[0].Snippet.Tags {
-		words = strings.Split(tag, " ")
+		words := strings.Split(tag, " ")
 		for _, w := range words {
 			userTags = append(userTags, w)
 		}
@@ -188,7 +193,19 @@ func getTagsFromVideo(video *types.UserVideoItem) []string {
 	for _, w := range descriptionWords {
 		userTags = append(userTags, w)
 	}
-	return userTags
+	freeFormText := strings.Join(userTags, " ")
+	freeFormText = CleanString(freeFormText)
+	userTags = strings.Split(freeFormText, " ")
+
+	processedWords := []string{}
+	for _, w := range userTags {
+		w = GetStemOfWord(w)
+		w = strings.ToLower(w)
+		if len(w) > 1 {
+			processedWords = append(processedWords, w)
+		}
+	}
+	return processedWords
 }
 
 type Score struct {
@@ -205,19 +222,20 @@ type Score struct {
 // match similar categories
 func (youtube *YoutubeController) GetSortedVideoList(
 	userVideos []*types.UserVideoItem,
-	userCategoryID int,
 	candidateVideos []*types.UserVideoItem,
 ) []Score {
 
+	scores := []Score{}
 	for _, userVideo := range userVideos {
 
 		// need to do CleanString somehow on these tags
 		userTags := getTagsFromVideo(userVideo)
+		userCategoryID := userVideo.Items[0].Snippet.CategoryID
 		var totalScore float64
 
 		// for every video in the candidate videos, check how well they match up against
 		// the user tags
-		scores := []Score{}
+
 		for _, video := range candidateVideos {
 			videoTags := getTagsFromVideo(video)
 
@@ -229,21 +247,21 @@ func (youtube *YoutubeController) GetSortedVideoList(
 				// you can also prob do better here with different levels of word frequnecy
 			}
 			for _, tag := range userTags {
-				if wordFrequencyCandidateVideos[tag] {
-					if wordFrequencyCandidateVideos[tag] >= 6 {
-						totalScore += 6
-					} else if wordFrequencyCandidateVideos[tag] >= 4 {
-						totalScore += 4
-					} else if wordFrequencyCandidateVideos[tag] >= 2 {
-						totalScore += 2
-					}
+
+				if wordFrequencyCandidateVideos[tag] >= 6 {
+					totalScore += 6
+				} else if wordFrequencyCandidateVideos[tag] >= 4 {
+					totalScore += 4
+				} else if wordFrequencyCandidateVideos[tag] >= 2 {
+					totalScore += 2
 				}
 
 			}
-			tagScore := calculateDistanceScoreBetweenTags(userTags, videoTags)
-			totalScore += tagScore
+			// number of similar words
+			similarWordsScore := calculateDistanceScoreBetweenTags(userTags, videoTags)
+			totalScore += float64(similarWordsScore) * 2
 
-			categoryScore := calculateCategoryScore(userCategoryID, video.Items[0].CatgeoryID)
+			categoryScore := calculateCategoryScore(userCategoryID, video.Items[0].Snippet.CategoryID)
 			totalScore += categoryScore * 5
 
 			videoScore := Score{
@@ -252,10 +270,11 @@ func (youtube *YoutubeController) GetSortedVideoList(
 			}
 			scores = append(scores, videoScore)
 		}
-		sort.Slice(scores, func(i, j int) bool {
-			return scores[i].Score < scores[j].Score
-		})
+
 	}
+	sort.Slice(scores, func(i, j int) bool {
+		return scores[i].Score < scores[j].Score
+	})
 	return scores
 }
 
@@ -295,8 +314,7 @@ func calculateCategoryScore(userCategoryID int, candidateCategoryID int) float64
 // if so you can give one particular score
 // if not, then do the fuzzy matching.
 // add in title, description
-func calculateDistanceScoreBetweenTags(userTags, videoTags []string) float64 {
-	var totalScore float64
+func calculateDistanceScoreBetweenTags(userTags, videoTags []string) int {
 	count := 0
 	for _, userTag := range userTags {
 		for _, videoTag := range videoTags {
@@ -305,15 +323,14 @@ func calculateDistanceScoreBetweenTags(userTags, videoTags []string) float64 {
 
 			// if its not the SAME exact word...
 			// but requires less then a few tarnsitions...
+			// so we are counting the number of similar words
 			if distance != 0 && distance < 4 {
 				count++
-				totalScore += distance
 			}
 		}
 	}
-
 	// remember that lower the distance, higher the similarity
-	return totalScore / count
+	return count
 }
 
 func CleanString(text string) string {
@@ -346,6 +363,13 @@ func GetStemsOfText(text string) string {
 		s[i] = GetStemOfWord(v)
 	}
 	return strings.Join(s, " ")
+}
+
+// GetStemOfWord –
+func GetStemOfWord(word string) string {
+	wordAsBytes := []byte((word))
+	res := string(stemmer.Stem(wordAsBytes))
+	return res
 }
 
 // func (youtube *YoutubeController) GetTopMatches(videos)

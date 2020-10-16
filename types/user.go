@@ -4,6 +4,13 @@ import (
 	"time"
 )
 
+// email and/or mobile?
+type CreateUserRequest struct {
+	Email           *string `bson:"email" json:"email"`
+	Password        *string `json:"password,omitempty" bson:"password"`
+	PasswordConfirm *string `json:"password,omitempty" bson:"password"`
+}
+
 type User struct {
 	UserID          *string    `bson:"_id,omitempty" json:"_id,omitempty"`
 	UUID            *string    `bson:"uuid" json:"uuid"`

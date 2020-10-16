@@ -9,6 +9,7 @@ type Message struct {
 	From        *string    `json:"userFrom"`
 	To          *string    `json:"userTo"`
 	DateCreated *time.Time `json:"dateCreated"`
+	DateUpdated *time.Time `json:"dateUpdated"`
 	Content     *string    `json:"content"`
 	MatchUUID   *string    `json:"match_uuid" bson:"match_uuid"`
 }

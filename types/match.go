@@ -9,6 +9,7 @@ type Match struct {
 	UserOneUUID *string    `json:"userOneUUID"`
 	UserTwoUUID *string    `json:"userTwoUUID"`
 	DateCreated *time.Time `json:"dateCreated"`
+	DateUpdated *time.Time `json:"dateUpdated"`
 }
 
 type MatchResponse struct {
@@ -32,11 +33,10 @@ type MeetingPlace struct {
 	// other fields here
 }
 
+// TrackedLike -
 type TrackedLike struct {
-	UUID         *string `json:"uuid,omitempty" bson:"uuid,omitempty"`
-	MatchUUID    *string `json:"match_uuid" bson:"match_uuid"`
-	UserOneUUID  *string `json:"userOneUUID" bson:"userOneUUID"`
-	UserTwoUUID  *string `json:"userTwoUUID" bson:"userTwoUUID"`
-	UserOneLiked bool    `json:"userOneLiked" bson:"userOneLiked"`
-	UserTwoLiked bool    `json:"userTwoLiked" bson:"userTwoLiked"`
+	UUID                   *string `json:"uuid,omitempty" bson:"uuid,omitempty"`
+	MatchUUID              *string `json:"matchUUID,omitempty" bson:"matchUUID,omitempty"`
+	UserPerformingLikeUUID *string `json:"userPerformingLikeUUID" bson:"userPerformingLikeUUID"`
+	UserLikedUUID          *string `json:"userLikedUUID" bson:"userLikedUUID"`
 }

@@ -1,79 +1,65 @@
-package image_service
+package imageservice
 
 import (
-	"context"
-	"strings"
+	"errors"
 
-	"code.mine/dating_server/DB"
 	"code.mine/dating_server/mapping"
+	"code.mine/dating_server/repo"
 	"code.mine/dating_server/types"
 	uuid "github.com/satori/go.uuid"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
+// ImageController -
+type ImageController struct {
+	repo repo.Repo
+}
+
 // TODO – figure out more graceful way to deal with rank
-func CreateImage(imageToUpload *types.Image) (*types.Image, error) {
+// deal with images that already exist as well
+func (c *ImageController) CreateImage(imageToUpload *types.Image) (*types.Image, error) {
 	uuid, err := uuid.NewV4()
 	if err != nil {
 		return nil, err
 	}
 	imageToUpload.UUID = mapping.StrToPtr(uuid.String())
 	// if the current rank exists then just delete that
-	c, err := DB.GetCollection("images")
+	err = c.repo.CreateImage(imageToUpload)
 	if err != nil {
 		return nil, err
 	}
-
-	var foundImage *types.Image
-	res := c.FindOne(context.Background(), bson.M{"user_uuid": mapping.StrToV(imageToUpload.UserUUID), "rank": mapping.Int64ToV(imageToUpload.Rank)})
-	if res.Err() != nil && !strings.Contains(res.Err().Error(), "no documents in result") {
-		return nil, res.Err()
-	}
-	res.Decode(foundImage)
-	if foundImage != nil {
-		err = DeleteImage(foundImage.UUID)
-		if err != nil {
-			return nil, err
-		}
-	}
-	c.InsertOne(context.Background(), imageToUpload)
 	return imageToUpload, nil
 }
 
-func GetImagesByUserUUID(uuid *string) ([]*types.Image, error) {
-	c, err := DB.GetCollection("images")
+// GetImagesByUserUUID -
+func (c *ImageController) GetImagesByUserUUID(userUUID *string) ([]*types.Image, error) {
+	if userUUID == nil {
+		return nil, errors.New("need user uuid")
+	}
+	results, err := c.repo.GetImagesByUserUUID(userUUID)
 	if err != nil {
 		return nil, err
 	}
-	results := []*types.Image{}
-	res := c.FindOne(context.Background(), bson.M{"user_uuid": mapping.StrToV(uuid)})
-	if res.Err() != nil {
-		return nil, res.Err()
-	}
-	res.Decode(results)
 	return results, nil
 }
 
-func GetImageByImageUUID(uuid *string) (*types.Image, error) {
-	c, err := DB.GetCollection("images")
+// GetImageByImageUUID -
+func (c *ImageController) GetImageByImageUUID(uuid *string) (*types.Image, error) {
+	if uuid == nil {
+		return nil, errors.New("need image uuid")
+	}
+	img, err := c.repo.GetImageByImageUUID(uuid)
 	if err != nil {
 		return nil, err
 	}
-	img := types.Image{}
-	res := c.FindOne(context.Background(), bson.M{"uuid": *uuid})
-	if res.Err() != nil {
-		return nil, res.Err()
-	}
-	res.Decode(&img)
-	return &img, nil
+	return img, nil
 }
 
-func DeleteImage(imageUUID *string) error {
-	c, err := DB.GetCollection("images")
-	if err != nil {
-		return err
+// DeleteImage -
+func (c *ImageController) DeleteImage(imageUUID *string) error {
+	if imageUUID == nil {
+		return errors.New("need image uuid")
 	}
-	_, err = c.DeleteOne(context.Background(), bson.M{"uuid": mapping.StrToV(imageUUID)})
+	err := c.repo.DeleteImage(imageUUID)
 	if err != nil {
 		return err
 	}
