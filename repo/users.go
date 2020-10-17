@@ -166,7 +166,6 @@ func UpdateUserByUUID(uuid *string, fieldsToUpdate []bson.D) error {
 		return err
 	}
 	return nil
-
 }
 
 // CheckUserLoginPasswordByEmail -

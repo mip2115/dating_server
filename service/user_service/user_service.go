@@ -228,52 +228,7 @@ func GetUserByUUID(userUUID *string) (*types.User, error) {
 	return user, nil
 }
 
-// move this to images
-func SaveUserImage(userUUID *string, imgUUID *string) error {
-	c, err := DB.GetCollection("users")
-	if err != nil {
-		return err
-	}
-	update := bson.M{
-		"$push": bson.M{
-			"images": imgUUID,
-		},
-	}
-	_, err = c.UpdateOne(context.Background(), bson.M{"uuid": userUUID}, update)
-	if err != nil {
-		return err
-	}
-	return nil
-}
 
-func RemoveUserImage(userUUID *string, imgUUID *string) error {
-	c, err := DB.GetCollection("users")
-	if err != nil {
-		return err
-	}
-	update := bson.M{
-		"$pull": bson.M{
-			"images": imgUUID,
-		},
-	}
-	_, err = c.UpdateOne(context.Background(), bson.M{"uuid": userUUID}, update)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-
-func getProfilesLikedUser(userUUID *string) ([]*string, error) {
-	c, err := DB.GetCollection("users")
-	if err != nil {
-		return nil, err
-	}
-	res := c.FindOne(context.Background(), bson.M{"uuid": *userUUID})
-	user := types.User{}
-	res.Decode(&user)
-	return user.UsersLikedMe, nil
-}
 
 func verifyInfo(user *types.User) error {
 	if user.FirstName == nil {

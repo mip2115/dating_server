@@ -1,4 +1,4 @@
-package aws_service
+package awsservice
 
 import (
 	//"../../DB"
@@ -8,12 +8,13 @@ import (
 
 	//"context"
 	//"../../scripts"
-	"github.com/joho/godotenv"
-	"code.mine/dating_server/server/scripts"
-	"github.com/stretchr/testify/suite"
 	"io/ioutil"
 	"log"
 	"testing"
+
+	"code.mine/dating_server/server/scripts"
+	"github.com/joho/godotenv"
+	"github.com/stretchr/testify/suite"
 )
 
 var (

@@ -27,4 +27,5 @@ type Repo interface {
 	SaveMatch(newMatch *types.Match) error
 	SaveMessage(msg *types.Message) error
 	UpdateTrackedLikeByUUID(uuid *string, filter bson.M, updateParams bson.M) error
+	UpdateUserByUUID(uuid *string, fieldsToUpdate []bson.D) error 
 }

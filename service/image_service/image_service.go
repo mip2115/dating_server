@@ -65,3 +65,4 @@ func (c *ImageController) DeleteImage(imageUUID *string) error {
 	}
 	return nil
 }
+

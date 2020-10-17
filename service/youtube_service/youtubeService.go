@@ -1,14 +1,15 @@
 package youtubeservice
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
-	"net/http"
+	"net/url"
 	"sort"
 	"strings"
 
+	"code.mine/dating_server/gateway"
+	"code.mine/dating_server/mapping"
 	"code.mine/dating_server/repo"
+
 	"code.mine/dating_server/types"
 	"github.com/agnivade/levenshtein"
 	stemmer "github.com/agonopol/go-stem"
@@ -21,43 +22,59 @@ const (
 	developerKey = "AIzaSyBhFXscTPZr892Uj5h2wRghkFAqTPYtcEg"
 )
 
+// YoutubeController -
 type YoutubeController struct {
-	Repo repo.Repo
-}
-
-func GetYoutubeVideo(youtubeURL string) {
-	// developerKey := "AIzaSyBhFXscTPZr892Uj5h2wRghkFAqTPYtcEg"
-	// baseURL := "https://www.googleapis.com/youtube/v3/search?"
-
+	gateway gateway.Gateway
+	repo    repo.Repo
 }
 
 // YOUTUBE ID IS IN THE URL
+
 // GetYoutubeVideoDetails -
-func GetYoutubeVideoDetails(videoID *string) (*types.UserVideoItem, error) {
+func (c *YoutubeController) GetYoutubeVideoDetails(videoURL *string) (*types.UserVideoItem, error) {
 	// https://www.googleapis.com/youtube/v3/videos?id=D95qIe5pLuA&key=AIzaSyBhFXscTPZr892Uj5h2wRghkFAqTPYtcEg&part=snippet,statistics,topicDetails
-	if videoID == nil {
+	if videoURL == nil {
 		return nil, errors.New("Need url")
 	}
-	baseURL := "https://www.googleapis.com/youtube/v3/videos?"
-	url := fmt.Sprintf("%s&id=%s&key=%s&part=snippet,statistics,topicDetails", baseURL, *videoID, developerKey)
-	req, err := http.NewRequest("GET", url, nil)
+
+	// attempt to get the video is
+	u, err := url.Parse(mapping.StrToV(videoURL))
+	if err != nil {
+		return nil, err
+	}
+	var videoID *string
+	values := u.Query()["id"]
+	if len(values) == 0 {
+		videoID, err = GetYoutubeVideoID(videoURL)
+		if err != nil {
+			return nil, errors.New("could not get video ID")
+		}
+	}
+	response, err := c.gateway.GetYoutubeVideoDetails(videoID)
 	if err != nil {
 		return nil, err
 	}
 
-	response := &types.UserVideoItem{}
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	err = json.NewDecoder(resp.Body).Decode(&response)
-	if err != nil {
-		return nil, err
-	}
-	if response == nil {
-		return nil, errors.New("response is nil")
-	}
+	// baseURL := "https://www.googleapis.com/youtube/v3/videos?"
+	// url := fmt.Sprintf("%s&id=%s&key=%s&part=snippet,statistics,topicDetails", baseURL, *videoID, developerKey)
+	// req, err := http.NewRequest("GET", url, nil)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// response := &types.UserVideoItem{}
+	// client := &http.Client{}
+	// resp, err := client.Do(req)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// err = json.NewDecoder(resp.Body).Decode(&response)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// if response == nil {
+	// 	return nil, errors.New("response is nil")
+	// }
 	return response, nil
 }
 
@@ -66,41 +83,47 @@ func GetYoutubeVideoID(youtubeURL *string) (*string, error) {
 	if youtubeURL == nil {
 		return nil, errors.New("Need url")
 	}
-	baseURL := "https://www.googleapis.com/youtube/v3/search?"
-	url := fmt.Sprintf("%spart=%s&maxResults=1&q=%s&type=video&key=%s", baseURL, "snippet", *youtubeURL, developerKey)
-	req, err := http.NewRequest("GET", url, nil)
+	resp, err := c.gateway.GetYoutubeVideoID(youtubeURL)
 	if err != nil {
 		return nil, err
 	}
-	response := &types.VideoIDResponse{}
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	err = json.NewDecoder(resp.Body).Decode(&response)
-	if err != nil {
-		return nil, err
-	}
-	if response == nil {
-		return nil, errors.New("response is nil")
-	}
-	if len(response.Items) < 1 {
-		return nil, errors.New("response.items is empty")
-	}
-	videoResponse := response.Items[0]
-	if videoResponse.ID == nil {
-		return nil, errors.New("item ID is nil")
-	}
-	if videoResponse.ID.VideoID == nil {
-		return nil, errors.New("videoID is nil")
-	}
-	return videoResponse.ID.VideoID, nil
+	return err, nil
+	// baseURL := "https://www.googleapis.com/youtube/v3/search?"
+	// url := fmt.Sprintf("%spart=%s&maxResults=1&q=%s&type=video&key=%s", baseURL, "snippet", *youtubeURL, developerKey)
+	// req, err := http.NewRequest("GET", url, nil)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// response := &types.VideoIDResponse{}
+	// client := &http.Client{}
+	// resp, err := client.Do(req)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// err = json.NewDecoder(resp.Body).Decode(&response)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// if response == nil {
+	// 	return nil, errors.New("response is nil")
+	// }
+	// if len(response.Items) < 1 {
+	// 	return nil, errors.New("response.items is empty")
+	// }
+	// videoResponse := response.Items[0]
+	// if videoResponse.ID == nil {
+	// 	return nil, errors.New("item ID is nil")
+	// }
+	// if videoResponse.ID.VideoID == nil {
+	// 	return nil, errors.New("videoID is nil")
+	// }
+	// return videoResponse.ID.VideoID, nil
 }
 
 // https://blog.codecentric.de/en/2017/08/gomock-tutorial/
+
 // GetEligibleUsers -
-func (youtube *YoutubeController) GetEligibleUsers(user *types.User) ([]*types.User, error) {
+func (c *YoutubeController) GetEligibleUsers(user *types.User) ([]*types.User, error) {
 	city := user.City
 	partnerGender := user.PartnerGender
 
@@ -116,7 +139,7 @@ func (youtube *YoutubeController) GetEligibleUsers(user *types.User) ([]*types.U
 	}
 	options := options.Find()
 	options.SetLimit(int64(50000))
-	users, err := youtube.Repo.GetUsersByFilter(&filters, options)
+	users, err := c.Repo.GetUsersByFilter(&filters, options)
 	if err != nil {
 		return nil, err
 	}
@@ -130,13 +153,15 @@ func (youtube *YoutubeController) GetEligibleUsers(user *types.User) ([]*types.U
 }
 
 // TODO – add in title words to tags
-func (youtube *YoutubeController) RankAndMatchYoutubeVideos(user *types.User) ([]*types.User, error) {
+
+// RankAndMatchYoutubeVideos -
+func (c *YoutubeController) RankAndMatchYoutubeVideos(user *types.User) ([]*types.User, error) {
 
 	if user == nil {
 		return nil, errors.New("user is nil")
 	}
 	// make sure user cant get themselves
-	users, err := youtube.GetEligibleUsers(user)
+	users, err := c.GetEligibleUsers(user)
 	if err != nil {
 		return nil, err
 	}
@@ -149,17 +174,17 @@ func (youtube *YoutubeController) RankAndMatchYoutubeVideos(user *types.User) ([
 	}
 
 	// get video by user
-	userVideos, err := youtube.Repo.GetVideosByUserUUID(user.UUID)
+	userVideos, err := c.Repo.GetVideosByUserUUID(user.UUID)
 	if err != nil {
 		return nil, err
 	}
 
-	youtubeVideoCandidates, err := youtube.Repo.GetVideosByAllUserUUIDs(userUUIDs)
+	youtubeVideoCandidates, err := c.Repo.GetVideosByAllUserUUIDs(userUUIDs)
 	if err != nil {
 		return nil, err
 	}
 
-	sortedVideoScoreList := youtube.GetSortedVideoList(userVideos, youtubeVideoCandidates)
+	sortedVideoScoreList := c.GetSortedVideoList(userVideos, youtubeVideoCandidates)
 
 	processedUUIDs := map[string]bool{}
 	sortedUsers := []*types.User{}
@@ -208,6 +233,7 @@ func getTagsFromVideo(video *types.UserVideoItem) []string {
 	return processedWords
 }
 
+// Score -
 type Score struct {
 	Score float64
 	Video *types.UserVideoItem
@@ -220,7 +246,9 @@ type Score struct {
 // https://gist.github.com/dgp/1b24bf2961521bd75d6c
 // https://techpostplus.com/youtube-video-categories-list-faqs-and-solutions/#YouTube_video_category_name_and_id_list
 // match similar categories
-func (youtube *YoutubeController) GetSortedVideoList(
+
+// GetSortedVideoList -
+func (c *YoutubeController) GetSortedVideoList(
 	userVideos []*types.UserVideoItem,
 	candidateVideos []*types.UserVideoItem,
 ) []Score {
@@ -333,6 +361,7 @@ func calculateDistanceScoreBetweenTags(userTags, videoTags []string) int {
 	return count
 }
 
+// CleanString -
 func CleanString(text string) string {
 	text = strings.Replace(text, "\n", " ", -1)
 
@@ -352,11 +381,13 @@ func CleanString(text string) string {
 	return text
 }
 
+// RemoveStopWords -
 func RemoveStopWords(text string) string {
 	cleanedString := stopwords.CleanString(text, "en", false)
 	return cleanedString
 }
 
+// GetStemsOfText -
 func GetStemsOfText(text string) string {
 	s := strings.Split(text, " ")
 	for i, v := range s {

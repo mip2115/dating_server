@@ -1,23 +1,19 @@
-package aws_service
+package awsservice
 
 import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"code.mine/dating_server/gateway"
+	"code.mine/dating_server/mapping"
 	uuid "github.com/satori/go.uuid"
-
-	//"github.com/kama/server/DB"
-	AWSSetup "code.mine/dating_server/aws"
-	//us "github.com/kama/server/service/user_service"
-	//"github.com/kama/server/types"
-	//AWSSetup "github.com/code/kama/server/DB/aws"
-	//image "github.com/kama/server/service/image_service"
-
-	"os"
 )
+
+// AWSController -
+type AWSController struct {
+	gateway gateway.Gateway
+}
 
 ///Users/M/go/src/github.com/code/kama/server/service/aws_service/aws_service.go
 var (
@@ -25,67 +21,37 @@ var (
 	linkToBucket = "https://kama-documents-public.s3.amazonaws.com/"
 )
 
-func UploadImageToS3(fileBytes []byte, userUUID *string) (*string, *string, error) {
+// UploadImageToS3 -
+func (c *AWSController) UploadImageToS3(fileBytes []byte, userUUID *string) (*string, error) {
 	decodedString, err := base64.StdEncoding.DecodeString(string(fileBytes))
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	s, err := AWSSetup.GetSession()
-	if err != nil {
-		return nil, nil, err
-	}
+	// s, err := AWSSetup.GetSession()
+	// if err != nil {
+	// 	return nil, err
+	// }
 	buf := bytes.NewBuffer([]byte(decodedString))
-	size := buf.Len()
+	size := int64(buf.Len())
 	buffer := buf.Bytes()
-
 	newFileNameUUID, err := uuid.NewV4()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-
-	fileNameForS3 := fmt.Sprintf("%s/%s/%s.jpg", imageFolder, *userUUID, newFileNameUUID.String())
-
-	_, err = s3.New(s).PutObject(&s3.PutObjectInput{
-		Bucket:               aws.String(os.Getenv("BUCKET_NAME")),
-		Key:                  aws.String(fileNameForS3),
-		ACL:                  aws.String("public-read"),
-		Body:                 bytes.NewReader(buffer),
-		ContentLength:        aws.Int64(int64(size)),
-		ContentType:          aws.String("image/jpeg"),
-		ServerSideEncryption: aws.String("AES256"),
-		StorageClass:         aws.String("INTELLIGENT_TIERING"),
-	})
+	fileNameForS3 := fmt.Sprintf("%s/%s/%s.jpg", imageFolder, mapping.StrToV(userUUID), newFileNameUUID.String())
+	err = c.gateway.UploadUserImageToS3(fileNameForS3, buffer, size)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	linkToAdd := fmt.Sprintf("%s%s", linkToBucket, fileNameForS3)
-	/*
-		img, err := image.CreateImage(userUUID, &linkToAdd, &fileNameForS3)
-		if err != nil {
-			return err
-		}
-
-		/*
-		//linkToAdd := fmt.Sprintf("%s%s", linkToBucket, fileNameForS3)
-		err = us.SaveUserImage(userUUID, img.UserUUID)
-		if err != nil {
-			return err
-		}
-	*/
-	// after we've uploaded, add the image to the users thing
-	return &linkToAdd, &fileNameForS3, nil
+	urlForUploadedImage := fmt.Sprintf("%s%s", linkToBucket, fileNameForS3)
+	return &urlForUploadedImage, nil
 }
 
-func DeleteImageFromS3(key *string) error {
-	s, err := AWSSetup.GetSession()
-	if err != nil {
-		return err
-	}
-	_, err = s3.New(s).DeleteObject(&s3.DeleteObjectInput{
-		Bucket: aws.String(os.Getenv("BUCKET_NAME")),
-		Key:    aws.String(*key),
-	})
+// DeleteImageFromS3 -
+func (c *AWSController) DeleteImageFromS3(key *string) error {
+
+	err := c.gateway.DeleteUserImageFromS3(key)
 	if err != nil {
 		return err
 	}
