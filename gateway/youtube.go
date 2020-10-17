@@ -39,6 +39,7 @@ func GetYoutubeVideoDetails(videoID *string) (*types.UserVideoItem, error) {
 	return response, nil
 }
 
+// GetYoutubeVideoID - 
 func GetYoutubeVideoID(youtubeURL *string) (*string, error) {
 	baseURL := "https://www.googleapis.com/youtube/v3/search?"
 	url := fmt.Sprintf("%spart=%s&maxResults=1&q=%s&type=video&key=%s", baseURL, "snippet", mapping.StrToV(youtubeURL), developerKey)

@@ -1,46 +1,59 @@
 package userservice
 
 import (
-
-	"context"
 	"errors"
-	"fmt"
-	"strings"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"code.mine/dating_server/DB"
 	"code.mine/dating_server/mapping"
-	ms "code.mine/dating_server/service/match_service"
+	"code.mine/dating_server/repo"
 	"code.mine/dating_server/types"
 	uuid "github.com/satori/go.uuid"
-	"golang.org/x/crypto/bcrypt"
 )
 
-type UserController strct{
+type UserController struct {
 	repo repo.Repo
 }
 
-// make sure to also set up google/fb auth
-func (c *UserController) CreateUser(user *types.User) (*string, error) {
-	user.FutureDates = []*string{}
-	user.PastDates = []*string{}
-	user.Matches = []*string{}
-	user.UsersLikedMe = []*string{}
-	user.RecentlyMatched = []*string{}
+func New(
+	repo repo.Repo,
+) *UserController {
+	return &UserController{
+		repo: repo,
+	}
+}
 
-	res, err := c.repo.GetUserByEmail(user.Email)
+// make sure to also set up google/fb auth
+
+// CreateUser -
+func (c *UserController) CreateUser(userRequest *types.CreateUserRequest) (*string, error) {
+	if userRequest.Email == nil {
+		return nil, errors.New("need email to create user")
+	}
+	if userRequest.Password == nil {
+		return nil, errors.New("need password to create user")
+	}
+	if userRequest.Password == nil || mapping.StrToV(userRequest.Password) != mapping.StrToV(userRequest.PasswordConfirm) {
+		return nil, errors.New("password and password confirm do not match")
+	}
+
+	res, err := c.repo.GetUserByEmail(userRequest.Email)
 	if err != nil {
 		return nil, err
 	}
 	if res != nil {
 		return nil, errors.New("User exists")
 	}
-	err = verifyEmailAndPassword(user)
-	if err != nil {
-		return nil, err
-	}
+
+	user := &types.User{}
+	user.Password = userRequest.Password
+	user.Email = userRequest.Email
+	user.FutureDates = []*string{}
+	user.PastDates = []*string{}
+	user.Matches = []*string{}
+	user.UsersLikedMe = []*string{}
+	user.RecentlyMatched = []*string{}
 	insertedID, err := c.repo.CreateUser(user)
 	if err != nil {
 		return nil, err
@@ -54,34 +67,42 @@ func (c *UserController) CreateUser(user *types.User) (*string, error) {
 // if userTwo likesback user one, search for a tracked like that exists
 // already where user one liked userTwo.
 // If yes, create a match and update Connected
-func LikeProfile(userGettingLiked *string, userPerformingLike *string) (*types.TrackedLike, error) {
-
+func (c *UserController) LikeProfile(userGettingLiked *string, userPerformingLike *string) (*types.TrackedLike, error) {
+	if userGettingLiked == nil {
+		return nil, errors.New("need userGettingLiked to perform like")
+	}
+	if userPerformingLike == nil {
+		return nil, errors.New("need userPerformingLike to perform like")
+	}
 	// first check if there is a trackedLike
 	// if there is, then just update it.
 	//
-	c, err := DB.GetCollection("trackedLike")
-	if err != nil {
-		return nil, err
-	}
+	// c, err := DB.GetCollection("trackedLike")
+	// if err != nil {
+	// 	return nil, err
+	// }
 	var trackedLike *types.TrackedLike
-	trackedLike, err := c.repo.GetTrackedLikeByUserUUID(userGettingLiked,userPerformingLike)
+	trackedLike, err := c.repo.GetTrackedLikeByUserUUID(userGettingLiked, userPerformingLike)
 	if err != nil {
 		return nil, err
 	}
 	if trackedLike == nil {
+
 		newUUID, err := uuid.NewV4()
 		if err != nil {
 			return nil, err
 		}
-		trackedLike.UUID = mapping.StrToPtr(newUUID.String())
-		trackedLike.UserPerformingLikeUUID = userPerformingLike
-		trackedLike.UserGettingLikedUUID = userGettingLiked
+		trackedLike = &types.TrackedLike{
+			UUID:                   mapping.StrToPtr(newUUID.String()),
+			UserPerformingLikeUUID: userPerformingLike,
+			UserLikedUUID:          userGettingLiked,
+		}
 		trackedLike, err := c.repo.CreateTrackedLike(trackedLike)
 		if err != nil {
 			return nil, err
 		}
 		return trackedLike, nil
-	} 
+	}
 	// now create a new match
 	newMatchUUID, err := uuid.NewV4()
 	if err != nil {
@@ -89,18 +110,17 @@ func LikeProfile(userGettingLiked *string, userPerformingLike *string) (*types.T
 	}
 	t := time.Now()
 	newMatch := &types.Match{
-		UUID: mapping.StrToPtr(newMatchUUID.String())
-		UserOneUUID: UserPerformingLikeUUID,
-		UserTwoUUID: UserGettingLikedUUID,
+		UUID:        mapping.StrToPtr(newMatchUUID.String()),
+		UserOneUUID: userPerformingLike,
+		UserTwoUUID: userGettingLiked,
 		DateCreated: &t,
 		DateUpdated: &t,
-		MatchUUID: newMatchUUID,
 	}
 	updateParams := bson.M{
-		"matchUUID": mapping.StrToV(newMatchUUID),
+		"matchUUID": newMatchUUID.String(),
 	}
-	filter := bson.M {
-		"uuid":mapping.StrToV(trackedLike.UUID),
+	filter := bson.M{
+		"uuid": mapping.StrToV(trackedLike.UUID),
 	}
 	err = c.repo.UpdateTrackedLikeByUUID(trackedLike.UUID, filter, updateParams)
 	if err != nil {
@@ -113,69 +133,73 @@ func LikeProfile(userGettingLiked *string, userPerformingLike *string) (*types.T
 	return trackedLike, nil
 }
 
-func LoginUser(user *types.User) (*types.User, error) {
-	err := verifyEmailAndPassword(user)
-	if err != nil {
-		return nil, err
+// LoginUser -
+func (c *UserController) LoginUser(email, password *string) (*types.User, error) {
+	if email == nil {
+		return nil, errors.New("need email to create user")
 	}
-	checkedUser, err := c.repo.CheckUserLoginPasswordByEmail(user.Email, user.Password)
+	if password == nil {
+		return nil, errors.New("need password to create user")
+	}
+	checkedUser, err := c.repo.CheckUserLoginPasswordByEmail(email, password)
 	if err != nil {
 		return nil, err
 	}
 	return checkedUser, nil
 }
 
-
 // handle reseting ages differently because it should retrigger a search
-func UpdateUser(user *types.User) error {
-	fieldsToUpdate := bson.D{}
+
+// UpdateUser -
+func (c *UserController) UpdateUser(user *types.User) error {
+	fieldsToUpdate := []bson.M{}
 	if user.Email != nil {
-		fieldsToUpdate = append(fieldsToUpdate, primitive.E{Key: "email", Value: *user.Email})
+		fieldsToUpdate = append(fieldsToUpdate, bson.M{"email": *user.Email})
 	}
 	if user.Mobile != nil {
-		fieldsToUpdate = append(fieldsToUpdate, primitive.E{Key: "mobile", Value: *user.Mobile})
+		fieldsToUpdate = append(fieldsToUpdate, bson.M{"mobile": *user.Mobile})
 	}
 	if user.Gender != nil {
-		fieldsToUpdate = append(fieldsToUpdate, primitive.E{Key: "gender", Value: *user.Gender})
+		fieldsToUpdate = append(fieldsToUpdate, bson.M{"gender": *user.Gender})
 	}
 	if user.Drink != nil {
-		fieldsToUpdate = append(fieldsToUpdate, primitive.E{Key: "drink", Value: *user.Drink})
+		fieldsToUpdate = append(fieldsToUpdate, bson.M{"drink": *user.Drink})
 	}
 	if user.Smoke != nil {
-		fieldsToUpdate = append(fieldsToUpdate, primitive.E{Key: "smoke", Value: *user.Smoke})
+		fieldsToUpdate = append(fieldsToUpdate, bson.M{"smoke": *user.Smoke})
 	}
 	if user.Job != nil {
-		fieldsToUpdate = append(fieldsToUpdate, primitive.E{Key: "job", Value: *user.Job})
+		fieldsToUpdate = append(fieldsToUpdate, bson.M{"job": *user.Job})
 	}
 	if user.University != nil {
-		fieldsToUpdate = append(fieldsToUpdate, primitive.E{Key: "university", Value: *user.University})
+		fieldsToUpdate = append(fieldsToUpdate, bson.M{"university": *user.University})
 	}
 	if user.Job != nil {
-		fieldsToUpdate = append(fieldsToUpdate, primitive.E{Key: "job", Value: *user.Job})
+		fieldsToUpdate = append(fieldsToUpdate, bson.M{"job": *user.Job})
 	}
 	if user.Politics != nil {
-		fieldsToUpdate = append(fieldsToUpdate, primitive.E{Key: "politics", Value: *user.Politics})
+		fieldsToUpdate = append(fieldsToUpdate, bson.M{"politics": *user.Politics})
 	}
 	if user.Religion != nil {
-		fieldsToUpdate = append(fieldsToUpdate, primitive.E{Key: "religion", Value: *user.Religion})
+		fieldsToUpdate = append(fieldsToUpdate, bson.M{"religion": *user.Religion})
 	}
 	if user.Hometown != nil {
-		fieldsToUpdate = append(fieldsToUpdate, primitive.E{Key: "hometown", Value: *user.Hometown})
+		fieldsToUpdate = append(fieldsToUpdate, bson.M{"hometown": *user.Hometown})
 	}
 	if user.PartnerGender != nil {
-		fieldsToUpdate = append(fieldsToUpdate, primitive.E{Key: "partnerGender", Value: *user.PartnerGender})
+		fieldsToUpdate = append(fieldsToUpdate, bson.M{"partnerGender": *user.PartnerGender})
 	}
 	if user.MeetingAddress != nil {
-		fieldsToUpdate = append(fieldsToUpdate, primitive.E{Key: "meetingAddress", Value: *user.MeetingAddress})
+		fieldsToUpdate = append(fieldsToUpdate, bson.M{"meetingAddress": *user.MeetingAddress})
 	}
 	if user.City != nil {
-		fieldsToUpdate = append(fieldsToUpdate, primitive.E{Key: "city", Value: *user.City})
+		fieldsToUpdate = append(fieldsToUpdate, bson.M{"city": *user.City})
 	}
 	if user.Purpose != nil {
-		fieldsToUpdate = append(fieldsToUpdate, primitive.E{Key: "purpose", Value: *user.Purpose})
+		fieldsToUpdate = append(fieldsToUpdate, bson.M{"purpose": *user.Purpose})
 	}
 
-	err = c.repo.UpdateUserByUUID(user.UUID, fieldToUpdate)
+	err := c.repo.UpdateUserByUUID(user.UUID, fieldsToUpdate)
 	if err != nil {
 		return err
 	}
@@ -198,37 +222,23 @@ func UpdateUser(user *types.User) error {
 // 	return users, nil
 // }
 
-// pick up here
-func DeleteUserByUUID(userUUID *string) error {
-	c, err := DB.GetCollection("users")
-	if err != nil {
-		return err
-	}
-	_, err = c.DeleteOne(context.Background(), bson.M{"uuid": userUUID})
+// DeleteUserByUUID -
+func (c *UserController) DeleteUserByUUID(userUUID *string) error {
+	err := c.repo.DeleteUserByUUID(userUUID)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func GetUserByUUID(userUUID *string) (*types.User, error) {
-	c, err := DB.GetCollection("users")
-	if err != nil {
-		return nil, err
-	}
-	user := &types.User{}
-	res := c.FindOne(context.Background(), bson.M{"uuid": *userUUID})
-	if res.Err() != nil {
-		return nil, res.Err()
-	}
-	res.Decode(user)
+// GetUserByUUID -
+func (c *UserController) GetUserByUUID(userUUID *string) (*types.User, error) {
+	user, err := c.repo.GetUserByUUID(userUUID)
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
 }
-
-
 
 func verifyInfo(user *types.User) error {
 	if user.FirstName == nil {
@@ -239,17 +249,6 @@ func verifyInfo(user *types.User) error {
 	}
 	if user.Mobile == nil {
 		return errors.New("Must provide Mobile")
-	}
-	return nil
-}
-
-
-func verifyEmailAndPassword(user *types.User) error {
-	if user.Email == nil {
-		return errors.New("must provide email")
-	}
-	if user.Password == nil {
-		return errors.New("must provide password")
 	}
 	return nil
 }

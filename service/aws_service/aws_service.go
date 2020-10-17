@@ -27,10 +27,6 @@ func (c *AWSController) UploadImageToS3(fileBytes []byte, userUUID *string) (*st
 	if err != nil {
 		return nil, err
 	}
-	// s, err := AWSSetup.GetSession()
-	// if err != nil {
-	// 	return nil, err
-	// }
 	buf := bytes.NewBuffer([]byte(decodedString))
 	size := int64(buf.Len())
 	buffer := buf.Bytes()
@@ -50,7 +46,6 @@ func (c *AWSController) UploadImageToS3(fileBytes []byte, userUUID *string) (*st
 
 // DeleteImageFromS3 -
 func (c *AWSController) DeleteImageFromS3(key *string) error {
-
 	err := c.gateway.DeleteUserImageFromS3(key)
 	if err != nil {
 		return err

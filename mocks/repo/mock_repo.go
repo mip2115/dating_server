@@ -36,8 +36,23 @@ func (m *MockRepo) EXPECT() *MockRepoMockRecorder {
 	return m.recorder
 }
 
+// CheckUserLoginPasswordByEmail mocks base method.
+func (m *MockRepo) CheckUserLoginPasswordByEmail(arg0, arg1 *string) (*types.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckUserLoginPasswordByEmail", arg0, arg1)
+	ret0, _ := ret[0].(*types.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CheckUserLoginPasswordByEmail indicates an expected call of CheckUserLoginPasswordByEmail.
+func (mr *MockRepoMockRecorder) CheckUserLoginPasswordByEmail(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckUserLoginPasswordByEmail", reflect.TypeOf((*MockRepo)(nil).CheckUserLoginPasswordByEmail), arg0, arg1)
+}
+
 // CreateImage mocks base method.
-func (m *MockRepo) CreateImage(arg0 types.Image) error {
+func (m *MockRepo) CreateImage(arg0 *types.Image) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateImage", arg0)
 	ret0, _ := ret[0].(error)
@@ -63,6 +78,36 @@ func (m *MockRepo) CreateMatch(arg0 *types.Match) (*types.Match, error) {
 func (mr *MockRepoMockRecorder) CreateMatch(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateMatch", reflect.TypeOf((*MockRepo)(nil).CreateMatch), arg0)
+}
+
+// CreateTrackedLike mocks base method.
+func (m *MockRepo) CreateTrackedLike(arg0 *types.TrackedLike) (*types.TrackedLike, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateTrackedLike", arg0)
+	ret0, _ := ret[0].(*types.TrackedLike)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateTrackedLike indicates an expected call of CreateTrackedLike.
+func (mr *MockRepoMockRecorder) CreateTrackedLike(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTrackedLike", reflect.TypeOf((*MockRepo)(nil).CreateTrackedLike), arg0)
+}
+
+// CreateUser mocks base method.
+func (m *MockRepo) CreateUser(arg0 *types.User) (*string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateUser", arg0)
+	ret0, _ := ret[0].(*string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateUser indicates an expected call of CreateUser.
+func (mr *MockRepoMockRecorder) CreateUser(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockRepo)(nil).CreateUser), arg0)
 }
 
 // DeleteImage mocks base method.
@@ -105,6 +150,20 @@ func (m *MockRepo) DeleteTrackedLikeByMatchUUID(arg0 *string) error {
 func (mr *MockRepoMockRecorder) DeleteTrackedLikeByMatchUUID(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTrackedLikeByMatchUUID", reflect.TypeOf((*MockRepo)(nil).DeleteTrackedLikeByMatchUUID), arg0)
+}
+
+// DeleteUserByUUID mocks base method.
+func (m *MockRepo) DeleteUserByUUID(arg0 *string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteUserByUUID", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteUserByUUID indicates an expected call of DeleteUserByUUID.
+func (mr *MockRepoMockRecorder) DeleteUserByUUID(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUserByUUID", reflect.TypeOf((*MockRepo)(nil).DeleteUserByUUID), arg0)
 }
 
 // GetImageByImageUUID mocks base method.
@@ -152,6 +211,51 @@ func (mr *MockRepoMockRecorder) GetMessagesByMatchUUID(arg0, arg1, arg2 interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMessagesByMatchUUID", reflect.TypeOf((*MockRepo)(nil).GetMessagesByMatchUUID), arg0, arg1, arg2)
 }
 
+// GetTrackedLikeByUserUUID mocks base method.
+func (m *MockRepo) GetTrackedLikeByUserUUID(arg0, arg1 *string) (*types.TrackedLike, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTrackedLikeByUserUUID", arg0, arg1)
+	ret0, _ := ret[0].(*types.TrackedLike)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTrackedLikeByUserUUID indicates an expected call of GetTrackedLikeByUserUUID.
+func (mr *MockRepoMockRecorder) GetTrackedLikeByUserUUID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTrackedLikeByUserUUID", reflect.TypeOf((*MockRepo)(nil).GetTrackedLikeByUserUUID), arg0, arg1)
+}
+
+// GetUserByEmail mocks base method.
+func (m *MockRepo) GetUserByEmail(arg0 *string) (*types.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserByEmail", arg0)
+	ret0, _ := ret[0].(*types.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserByEmail indicates an expected call of GetUserByEmail.
+func (mr *MockRepoMockRecorder) GetUserByEmail(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByEmail", reflect.TypeOf((*MockRepo)(nil).GetUserByEmail), arg0)
+}
+
+// GetUserByUUID mocks base method.
+func (m *MockRepo) GetUserByUUID(arg0 *string) (*types.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserByUUID", arg0)
+	ret0, _ := ret[0].(*types.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserByUUID indicates an expected call of GetUserByUUID.
+func (mr *MockRepoMockRecorder) GetUserByUUID(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByUUID", reflect.TypeOf((*MockRepo)(nil).GetUserByUUID), arg0)
+}
+
 // GetUsersByFilter mocks base method.
 func (m *MockRepo) GetUsersByFilter(arg0 *primitive.M, arg1 *options.FindOptions) ([]*types.User, error) {
 	m.ctrl.T.Helper()
@@ -197,6 +301,20 @@ func (mr *MockRepoMockRecorder) GetVideosByUserUUID(arg0 interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVideosByUserUUID", reflect.TypeOf((*MockRepo)(nil).GetVideosByUserUUID), arg0)
 }
 
+// SaveMatch mocks base method.
+func (m *MockRepo) SaveMatch(arg0 *types.Match) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SaveMatch", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SaveMatch indicates an expected call of SaveMatch.
+func (mr *MockRepoMockRecorder) SaveMatch(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveMatch", reflect.TypeOf((*MockRepo)(nil).SaveMatch), arg0)
+}
+
 // SaveMessage mocks base method.
 func (m *MockRepo) SaveMessage(arg0 *types.Message) error {
 	m.ctrl.T.Helper()
@@ -209,4 +327,32 @@ func (m *MockRepo) SaveMessage(arg0 *types.Message) error {
 func (mr *MockRepoMockRecorder) SaveMessage(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveMessage", reflect.TypeOf((*MockRepo)(nil).SaveMessage), arg0)
+}
+
+// UpdateTrackedLikeByUUID mocks base method.
+func (m *MockRepo) UpdateTrackedLikeByUUID(arg0 *string, arg1, arg2 primitive.M) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateTrackedLikeByUUID", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateTrackedLikeByUUID indicates an expected call of UpdateTrackedLikeByUUID.
+func (mr *MockRepoMockRecorder) UpdateTrackedLikeByUUID(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTrackedLikeByUUID", reflect.TypeOf((*MockRepo)(nil).UpdateTrackedLikeByUUID), arg0, arg1, arg2)
+}
+
+// UpdateUserByUUID mocks base method.
+func (m *MockRepo) UpdateUserByUUID(arg0 *string, arg1 []primitive.M) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateUserByUUID", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateUserByUUID indicates an expected call of UpdateUserByUUID.
+func (mr *MockRepoMockRecorder) UpdateUserByUUID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserByUUID", reflect.TypeOf((*MockRepo)(nil).UpdateUserByUUID), arg0, arg1)
 }

@@ -4,12 +4,6 @@ import (
 	"errors"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
-
-	"context"
-
-	"code.mine/dating_server/DB"
-	"code.mine/dating_server/mapping"
 	"code.mine/dating_server/repo"
 	"code.mine/dating_server/types"
 )
@@ -21,6 +15,8 @@ type MatchController struct {
 
 // TODO - error check to make sure youre not matching people who recently matched
 // or who should be blocked
+
+// CreateMatch -
 func (c *MatchController) CreateMatch(m *types.Match) (*types.Match, error) {
 	if m.UserOneUUID == nil {
 		return nil, errors.New("userOneUUID missing")
@@ -38,12 +34,13 @@ func (c *MatchController) CreateMatch(m *types.Match) (*types.Match, error) {
 	return createdMatch, nil
 }
 
-func (c *MatchController) DeleteMatch(m *types.MatchRequest) error {
-	err := c.repo.DeleteMatchByMatchUUID(m.UUID)
+// DeleteMatch -
+func (c *MatchController) DeleteMatch(matchUUID *string) error {
+	err := c.repo.DeleteMatchByMatchUUID(matchUUID)
 	if err != nil {
 		return err
 	}
-	err = c.repo.DeleteTrackedLikeByMatchUUID(m.UUID)
+	err = c.repo.DeleteTrackedLikeByMatchUUID(matchUUID)
 	if err != nil {
 		return err
 	}

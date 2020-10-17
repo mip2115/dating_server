@@ -127,6 +127,41 @@ func GetUsersByFilter(filters *bson.M, options *options.FindOptions) ([]*types.U
 	return users, nil
 }
 
+// DeleteUserByUUID -
+func DeleteUserByUUID(uuid *string) error {
+	c, err := DB.GetCollection("users")
+	if err != nil {
+		return err
+	}
+	_, err = c.DeleteOne(context.Background(), bson.M{"uuid": mapping.StrToV(uuid)})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// GetUserByUUID -
+func GetUserByUUID(uuid *string) (*types.User, error) {
+	c, err := DB.GetCollection("users")
+	if err != nil {
+		return nil, err
+	}
+
+	var user *types.User
+	resp := c.FindOne(context.Background(), bson.D{{Key: "uuid", Value: mapping.StrToV(uuid)}})
+	if resp.Err() != nil {
+		return nil, resp.Err()
+	}
+	err = resp.Decode(user)
+	if err == mongo.ErrNoDocuments {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
 func GetUserByEmail(email *string) (*types.User, error) {
 	c, err := DB.GetCollection("users")
 	if err != nil {
@@ -134,7 +169,7 @@ func GetUserByEmail(email *string) (*types.User, error) {
 	}
 
 	var user *types.User
-	resp := c.FindOne(context.Background(), bson.D{{Key: "email", Value: mapping.StrToV(user.Email)}})
+	resp := c.FindOne(context.Background(), bson.D{{Key: "email", Value: mapping.StrToV(email)}})
 	if resp.Err() != nil {
 		return nil, resp.Err()
 	}

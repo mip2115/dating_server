@@ -2,5 +2,6 @@
 
 https://blog.codecentric.de/en/2017/08/gomock-tutorial/
 
+//go:generate 
 
 mockgen -destination=mocks/repo/mock_repo.go -package=mocks code.mine/dating_server/repo Repo

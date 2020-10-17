@@ -57,3 +57,5 @@ type UserResponse struct {
 type UserRequest struct {
 	LikedProfileID *string `json:"liked_profile_id,omitempty"`
 }
+
+

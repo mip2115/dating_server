@@ -1,5 +1,7 @@
 package gateway
 
+//go:generate mockgen -destination=mocks/gateway/mock_gateway.go -package=gatewaymocks code.mine/dating_server/gateway Gateway
+
 import "code.mine/dating_server/types"
 
 type Gateway interface {

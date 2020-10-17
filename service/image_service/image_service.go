@@ -16,6 +16,7 @@ type ImageController struct {
 
 // TODO – figure out more graceful way to deal with rank
 // deal with images that already exist as well
+
 func (c *ImageController) CreateImage(imageToUpload *types.Image) (*types.Image, error) {
 	uuid, err := uuid.NewV4()
 	if err != nil {
@@ -65,4 +66,3 @@ func (c *ImageController) DeleteImage(imageUUID *string) error {
 	}
 	return nil
 }
-
