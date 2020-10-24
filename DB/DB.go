@@ -21,6 +21,8 @@ type DB_Connection_Struct struct {
 	Client    *mongo.Client
 }
 
+var DatabaseConnection *DB_Connection_Struct
+
 func init() {
 
 }
@@ -53,7 +55,6 @@ func SetupDB() (*DB_Connection_Struct, error) {
 
 	DB_Connection.DB_Handle = client.Database("kama")
 	return DB_Connection, nil
-
 }
 
 // GetDataBase returns the DB
@@ -65,6 +66,9 @@ func GetDatabase() (*DB_Connection_Struct, error) {
 }
 
 func GetDatabaseHandle() (*mongo.Database, error) {
+	if DatabaseConnection != nil {
+		return DatabaseConnection.DB_Handle, nil
+	}
 	if DB_Connection == nil {
 		return nil, errors.New("DB is null")
 	}
@@ -86,14 +90,13 @@ func GetCollection(c string) (*mongo.Collection, error) {
 		return nil, err
 	}
 	return DB_Handle.Collection(c), nil
-
 }
 
 func Disconnect() error {
-	if DB_Connection == nil {
+	if DatabaseConnection == nil {
 		return errors.New("DB is null")
 	}
 
-	DB_Connection.Client.Disconnect(context.Background())
+	DatabaseConnection.Client.Disconnect(context.Background())
 	return nil
 }

@@ -1,8 +1,9 @@
 package auth
 
 import (
-	"github.com/dgrijalva/jwt-go"
 	"code.mine/dating_server/types"
+	"github.com/dgrijalva/jwt-go"
+
 	//"golang.org/x/crypto/bcrypt"
 	"context"
 	//"errors"
@@ -17,8 +18,9 @@ func (c contextKey) String() string {
 	return string(c)
 }
 
-func GenerateJWT(uuid *string) (string, error) {
-	expiresAt := time.Now().Add(3 * time.Minute)
+// GenerateJWT -
+func GenerateJWT(uuid *string, expiresAt time.Time) (string, error) {
+	//expiresAt := time.Now().Add(3 * time.Minute)
 	claims := &types.Token{
 		UserUUID: *uuid,
 		StandardClaims: jwt.StandardClaims{
@@ -62,7 +64,6 @@ func VerifyJWT(next http.Handler) http.Handler {
 			return []byte("secret"), nil
 		})
 		if err != nil {
-
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -78,13 +79,11 @@ func VerifyJWT(next http.Handler) http.Handler {
 		*/
 
 		ctx := context.WithValue(r.Context(), "userUUID", tkn.Claims.(*types.Token).UserUUID)
-
-		//context.Set(r, "decoded", token.Claims)
-		//next(w, r)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
+// https://stackoverflow.com/questions/51201056/testing-golang-middleware-that-modifies-the-request
 func RefreshJWT(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 

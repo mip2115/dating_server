@@ -32,7 +32,7 @@ func GetMessagesByMatchUUID(pagesToSkip int, nPerPage int, matchUUID *string) ([
 	if err != nil {
 		return nil, err
 	}
-	cursor, err := c.Find(context.Background(), bson.D{}, options)
+	cursor, err := c.Find(context.Background(), bson.M{"match_uuid": *matchUUID}, options)
 	if err != nil {
 		return nil, err
 	}

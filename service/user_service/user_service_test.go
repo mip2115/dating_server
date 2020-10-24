@@ -113,13 +113,12 @@ func (suite *UserTestSuite) TestLikeUser() {
 		UserLikedUUID:          mapping.StrToPtr("James"),
 		UserPerformingLikeUUID: mapping.StrToPtr("Harry"),
 	}
-	mockRepo.EXPECT().GetTrackedLikeByUserUUID(gomock.Any(), gomock.Any()).
-		Return(nil, nil).
-		Return(trackedLikeHarryLikedJames, nil)
+	mockRepo.EXPECT().GetTrackedLikeByUserUUID(gomock.Any(), gomock.Any()).Return(nil, nil)
+	mockRepo.EXPECT().GetTrackedLikeByUserUUID(gomock.Any(), gomock.Any()).Return(trackedLikeHarryLikedJames, nil)
 
-	mockRepo.EXPECT().CreateTrackedLike(gomock.Any()).Return(newlyCreatedTrackedLike, nil)
-	mockRepo.EXPECT().UpdateTrackedLikeByUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
-	mockRepo.EXPECT().SaveMatch(gomock.Any()).Return(nil)
+	mockRepo.EXPECT().CreateTrackedLike(gomock.Any()).Return(newlyCreatedTrackedLike, nil).AnyTimes()
+	mockRepo.EXPECT().UpdateTrackedLikeByUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
+	mockRepo.EXPECT().SaveMatch(gomock.Any()).Return(nil).AnyTimes()
 	controller := UserController{
 		repo: mockRepo,
 	}
@@ -142,15 +141,24 @@ func (suite *UserTestSuite) TestLikeUser() {
 			shouldError:        false,
 			msg:                "harry already liked james.  create match",
 		},
+		{
+			userPerformingLike: mapping.StrToPtr("James"),
+			shouldError:        true,
+			msg:                "missing user getting liked",
+		},
+		{
+			userGettingLiked: mapping.StrToPtr("Harry"),
+			shouldError:      true,
+			msg:              "missing user performing like",
+		},
 	}
 
 	for _, t := range tests {
+		trackedLike, err := controller.LikeProfile(t.userGettingLiked, t.userPerformingLike)
 		if !t.shouldError {
-			trackedLike, err := controller.LikeProfile(t.userGettingLiked, t.userPerformingLike)
 			suite.Require().NoError(err, t.msg)
 			suite.Require().NotNil(trackedLike, t.msg)
 		} else {
-			trackedLike, err := controller.LikeProfile(t.userGettingLiked, t.userPerformingLike)
 			suite.Require().Error(err, t.msg)
 			suite.Require().Nil(trackedLike, t.msg)
 		}

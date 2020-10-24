@@ -46,6 +46,7 @@ type User struct {
 	MinimumAge      *int64     `json:"minimumAge" bson:"minimumAge"`
 	MaximumAge      *int64     `json:"maximumAge" bson:"maximumAge"`
 	City            *string    `json:"city" bson:"city"`
+	Zipcode         *string    `json:"zipcode" bson:"zipcode"`
 }
 
 type UserResponse struct {
@@ -57,5 +58,3 @@ type UserResponse struct {
 type UserRequest struct {
 	LikedProfileID *string `json:"liked_profile_id,omitempty"`
 }
-
-

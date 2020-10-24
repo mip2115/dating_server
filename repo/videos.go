@@ -51,6 +51,7 @@ func GetVideosByUserUUID(userUUID *string) ([]*types.UserVideoItem, error) {
 	return videos, nil
 }
 
+// SaveUserVideo -
 func SaveUserVideo(video *types.UserVideoItem) error {
 	c, err := DB.GetCollection("videos")
 	if err != nil {

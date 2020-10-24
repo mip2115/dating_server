@@ -3,6 +3,8 @@ package repo
 import (
 	"context"
 
+	"go.mongodb.org/mongo-driver/mongo"
+
 	"code.mine/dating_server/DB"
 	"code.mine/dating_server/mapping"
 	"code.mine/dating_server/types"
@@ -36,6 +38,7 @@ func GetImagesByUserUUID(uuid *string) ([]*types.Image, error) {
 	return results, nil
 }
 
+// GetImageByImageUUID -
 func GetImageByImageUUID(uuid *string) (*types.Image, error) {
 	c, err := DB.GetCollection("images")
 	if err != nil {
@@ -44,6 +47,9 @@ func GetImageByImageUUID(uuid *string) (*types.Image, error) {
 	img := &types.Image{}
 	res := c.FindOne(context.Background(), bson.M{"uuid": *uuid})
 	if res.Err() != nil {
+		if res.Err() == mongo.ErrNoDocuments {
+			return nil, nil
+		}
 		return nil, res.Err()
 	}
 	res.Decode(img)

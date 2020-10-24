@@ -40,14 +40,14 @@ func CreateUser(user *types.User) (*string, error) {
 
 // GetTrackedLikeByUserUUID -
 func GetTrackedLikeByUserUUID(userGettingLiked, userPerformingLike *string) (*types.TrackedLike, error) {
-	var trackedLike *types.TrackedLike
+	trackedLike := &types.TrackedLike{}
 	c, err := DB.GetCollection("trackedLike")
 	if err != nil {
 		return nil, err
 	}
 	filter := bson.M{
-		"userPerformingLike": mapping.StrToV(userGettingLiked),
-		"userGettingLiked":   mapping.StrToV(userPerformingLike),
+		"userPerformingLikeUUID": mapping.StrToV(userPerformingLike),
+		"userLikedUUID":          mapping.StrToV(userGettingLiked),
 	}
 
 	resp := c.FindOne(context.Background(), filter)
@@ -70,41 +70,18 @@ func UpdateTrackedLikeByUUID(uuid *string, filter bson.M, updateParams bson.M) e
 	if err != nil {
 		return err
 	}
-	resp, err := c.UpdateOne(context.Background(), filter, updateParams)
+	params := bson.M{
+		"$set": updateParams,
+	}
+	resp, err := c.UpdateOne(context.Background(), filter, params)
+	if err != nil {
+		return err
+	}
 	if resp.ModifiedCount == 0 {
 		return errors.New("no trackedLike documents modified")
 	}
 	return nil
 
-}
-
-// SaveMatch -
-func SaveMatch(newMatch *types.Match) error {
-	c, err := DB.GetCollection("matches")
-	if err != nil {
-		return err
-	}
-
-	_, err = c.InsertOne(context.Background(), newMatch)
-	if err != nil {
-		return err
-	}
-	return nil
-
-}
-
-// CreateTrackedLike -
-func CreateTrackedLike(trackedLike *types.TrackedLike) (*types.TrackedLike, error) {
-	c, err := DB.GetCollection("trackedLike")
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = c.InsertOne(context.Background(), trackedLike)
-	if err != nil {
-		return nil, err
-	}
-	return trackedLike, nil
 }
 
 // GetUsersByFilter -
@@ -147,51 +124,56 @@ func GetUserByUUID(uuid *string) (*types.User, error) {
 		return nil, err
 	}
 
-	var user *types.User
+	user := &types.User{}
 	resp := c.FindOne(context.Background(), bson.D{{Key: "uuid", Value: mapping.StrToV(uuid)}})
-	if resp.Err() != nil {
-		return nil, resp.Err()
+	err = resp.Err()
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		return nil, err
 	}
 	err = resp.Decode(user)
-	if err == mongo.ErrNoDocuments {
-		return nil, nil
-	}
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
+// GetUserByEmail -
 func GetUserByEmail(email *string) (*types.User, error) {
 	c, err := DB.GetCollection("users")
 	if err != nil {
 		return nil, err
 	}
 
-	var user *types.User
+	user := &types.User{}
 	resp := c.FindOne(context.Background(), bson.D{{Key: "email", Value: mapping.StrToV(email)}})
-	if resp.Err() != nil {
+	err = resp.Err()
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
 		return nil, resp.Err()
 	}
 	err = resp.Decode(user)
-	if err == mongo.ErrNoDocuments {
-		return nil, nil
-	}
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
+// make sure the fields that cant be updated arent
+// also make sure in the service layer you update this to do
+// just bson.m instead of a slice
+
 // UpdateUserByUUID -
-func UpdateUserByUUID(uuid *string, fieldsToUpdate []bson.D) error {
+func UpdateUserByUUID(uuid *string, fieldsToUpdate *bson.M) error {
 	c, err := DB.GetCollection("users")
 	if err != nil {
 		return err
 	}
-	update := bson.D{{Key: "$set",
-		Value: fieldsToUpdate,
-	}}
+	update := bson.M{"$set": *fieldsToUpdate}
 	_, err = c.UpdateOne(
 		context.Background(),
 		bson.M{"uuid": mapping.StrToV(uuid)},

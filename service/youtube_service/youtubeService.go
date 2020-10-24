@@ -45,7 +45,7 @@ func (c *YoutubeController) GetYoutubeVideoDetails(videoURL *string) (*types.Use
 	var videoID *string
 	values := u.Query()["id"]
 	if len(values) == 0 {
-		videoID, err = GetYoutubeVideoID(videoURL)
+		videoID, err = c.gateway.GetYoutubeVideoID(videoURL)
 		if err != nil {
 			return nil, errors.New("could not get video ID")
 		}
@@ -79,15 +79,15 @@ func (c *YoutubeController) GetYoutubeVideoDetails(videoURL *string) (*types.Use
 }
 
 // GetYoutubeVideoID -
-func GetYoutubeVideoID(youtubeURL *string) (*string, error) {
+func (c *YoutubeController) GetYoutubeVideoID(youtubeURL *string) (*string, error) {
 	if youtubeURL == nil {
 		return nil, errors.New("Need url")
 	}
-	resp, err := c.gateway.GetYoutubeVideoID(youtubeURL)
+	_, err := c.gateway.GetYoutubeVideoID(youtubeURL)
 	if err != nil {
 		return nil, err
 	}
-	return err, nil
+	return nil, err
 	// baseURL := "https://www.googleapis.com/youtube/v3/search?"
 	// url := fmt.Sprintf("%spart=%s&maxResults=1&q=%s&type=video&key=%s", baseURL, "snippet", *youtubeURL, developerKey)
 	// req, err := http.NewRequest("GET", url, nil)
@@ -124,8 +124,8 @@ func GetYoutubeVideoID(youtubeURL *string) (*string, error) {
 
 // GetEligibleUsers -
 func (c *YoutubeController) GetEligibleUsers(user *types.User) ([]*types.User, error) {
-	city := user.City
-	partnerGender := user.PartnerGender
+	// city := user.City
+	// partnerGender := user.PartnerGender
 
 	// get all eligible uuids.
 	// c, err := DB.GetCollection("users")
@@ -133,13 +133,14 @@ func (c *YoutubeController) GetEligibleUsers(user *types.User) ([]*types.User, e
 	// 	return nil, err
 	// }
 
-	filters := bson.M{
-		"city":          *city,
-		"partnerGender": *partnerGender,
+	filters := &bson.M{
+		"zipcode":       user.Zipcode,
+		"partnerGender": user.Gender,        // ppl looking for my gender
+		"gender":        user.PartnerGender, // their gender is what I want.
 	}
 	options := options.Find()
 	options.SetLimit(int64(50000))
-	users, err := c.Repo.GetUsersByFilter(&filters, options)
+	users, err := c.repo.GetUsersByFilter(filters, options)
 	if err != nil {
 		return nil, err
 	}
@@ -174,12 +175,12 @@ func (c *YoutubeController) RankAndMatchYoutubeVideos(user *types.User) ([]*type
 	}
 
 	// get video by user
-	userVideos, err := c.Repo.GetVideosByUserUUID(user.UUID)
+	userVideos, err := c.repo.GetVideosByUserUUID(user.UUID)
 	if err != nil {
 		return nil, err
 	}
 
-	youtubeVideoCandidates, err := c.Repo.GetVideosByAllUserUUIDs(userUUIDs)
+	youtubeVideoCandidates, err := c.repo.GetVideosByAllUserUUIDs(userUUIDs)
 	if err != nil {
 		return nil, err
 	}
