@@ -6,6 +6,17 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+//NewUserVideoItem -
+func NewUserVideoItem() *types.UserVideoItem {
+	userUUID, _ := uuid.NewV4()
+	uuid, _ := uuid.NewV4()
+	return &types.UserVideoItem{
+		UserUUID: mapping.StrToPtr(userUUID.String()),
+		UUID:     mapping.StrToPtr(uuid.String()),
+	}
+
+}
+
 // NewImage -
 func NewImage() *types.Image {
 	imageUUID, _ := uuid.NewV4()

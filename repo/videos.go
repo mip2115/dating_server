@@ -4,11 +4,14 @@ import (
 	"context"
 	"errors"
 
+	"go.mongodb.org/mongo-driver/mongo"
+
 	"code.mine/dating_server/DB"
 	"code.mine/dating_server/types"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+// GetVideosByAllUserUUIDs -
 func GetVideosByAllUserUUIDs(userUUIDs []*string) ([]*types.UserVideoItem, error) {
 	if userUUIDs == nil {
 		return nil, errors.New("no userUUIDs provided")
@@ -19,13 +22,16 @@ func GetVideosByAllUserUUIDs(userUUIDs []*string) ([]*types.UserVideoItem, error
 		return nil, err
 	}
 	filter := bson.M{
-		"user_uuid": bson.M{
+		"useruuid": bson.M{
 			"$in": userUUIDs,
 		},
 	}
 	cursor, err := c.Find(context.Background(), filter)
 	videos := []*types.UserVideoItem{}
 	if err = cursor.All(context.Background(), &videos); err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, errors.New("no videos found")
+		}
 		return nil, err
 	}
 	return videos, nil
@@ -43,9 +49,12 @@ func GetVideosByUserUUID(userUUID *string) ([]*types.UserVideoItem, error) {
 	}
 
 	videos := []*types.UserVideoItem{}
-	cursor, err := c.Find(context.Background(), bson.M{"user_uuid": *userUUID})
-	err = cursor.All(context.Background(), videos)
+	cursor, err := c.Find(context.Background(), bson.M{"useruuid": *userUUID})
+	err = cursor.All(context.Background(), &videos)
 	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, errors.New("no videos found")
+		}
 		return nil, err
 	}
 	return videos, nil

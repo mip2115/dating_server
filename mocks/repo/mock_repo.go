@@ -344,7 +344,7 @@ func (mr *MockRepoMockRecorder) UpdateTrackedLikeByUUID(arg0, arg1, arg2 interfa
 }
 
 // UpdateUserByUUID mocks base method.
-func (m *MockRepo) UpdateUserByUUID(arg0 *string, arg1 []primitive.M) error {
+func (m *MockRepo) UpdateUserByUUID(arg0 *string, arg1 primitive.M) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateUserByUUID", arg0, arg1)
 	ret0, _ := ret[0].(error)

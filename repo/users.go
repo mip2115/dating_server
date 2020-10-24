@@ -163,9 +163,7 @@ func GetUserByEmail(email *string) (*types.User, error) {
 	return user, nil
 }
 
-// make sure the fields that cant be updated arent
-// also make sure in the service layer you update this to do
-// just bson.m instead of a slice
+
 
 // UpdateUserByUUID -
 func UpdateUserByUUID(uuid *string, fieldsToUpdate *bson.M) error {

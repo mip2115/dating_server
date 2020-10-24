@@ -152,51 +152,62 @@ func (c *UserController) LoginUser(email, password *string) (*types.User, error)
 
 // UpdateUser -
 func (c *UserController) UpdateUser(user *types.User) error {
-	fieldsToUpdate := []bson.M{}
+	fieldsToUpdate := bson.M{}
 	if user.Email != nil {
-		fieldsToUpdate = append(fieldsToUpdate, bson.M{"email": *user.Email})
+		fieldsToUpdate["email"] = *user.Email
+		// fieldsToUpdate = append(fieldsToUpdate, bson.M{"email": *user.Email})
 	}
 	if user.Mobile != nil {
-		fieldsToUpdate = append(fieldsToUpdate, bson.M{"mobile": *user.Mobile})
+		fieldsToUpdate["mobile"] = *user.Mobile
+		//fieldsToUpdate = append(fieldsToUpdate, bson.M{"mobile": *user.Mobile})
 	}
 	if user.Gender != nil {
-		fieldsToUpdate = append(fieldsToUpdate, bson.M{"gender": *user.Gender})
+		fieldsToUpdate["gender"] = *user.Gender
+		// fieldsToUpdate = append(fieldsToUpdate, bson.M{"gender": *user.Gender})
 	}
 	if user.Drink != nil {
-		fieldsToUpdate = append(fieldsToUpdate, bson.M{"drink": *user.Drink})
+		fieldsToUpdate["drink"] = *user.Drink
+		// fieldsToUpdate = append(fieldsToUpdate, bson.M{"drink": *user.Drink})
 	}
 	if user.Smoke != nil {
-		fieldsToUpdate = append(fieldsToUpdate, bson.M{"smoke": *user.Smoke})
+		fieldsToUpdate["smoke"] = *user.Smoke
+		// fieldsToUpdate = append(fieldsToUpdate, bson.M{"smoke": *user.Smoke})
 	}
 	if user.Job != nil {
-		fieldsToUpdate = append(fieldsToUpdate, bson.M{"job": *user.Job})
+		fieldsToUpdate["job"] = *user.Job
+		// fieldsToUpdate = append(fieldsToUpdate, bson.M{"job": *user.Job})
 	}
 	if user.University != nil {
-		fieldsToUpdate = append(fieldsToUpdate, bson.M{"university": *user.University})
-	}
-	if user.Job != nil {
-		fieldsToUpdate = append(fieldsToUpdate, bson.M{"job": *user.Job})
+		fieldsToUpdate["university"] = *user.University
+		// fieldsToUpdate = append(fieldsToUpdate, bson.M{"university": *user.University})
 	}
 	if user.Politics != nil {
-		fieldsToUpdate = append(fieldsToUpdate, bson.M{"politics": *user.Politics})
+		fieldsToUpdate["politics"] = *user.Politics
+		// fieldsToUpdate = append(fieldsToUpdate, bson.M{"politics": *user.Politics})
 	}
 	if user.Religion != nil {
-		fieldsToUpdate = append(fieldsToUpdate, bson.M{"religion": *user.Religion})
+		fieldsToUpdate["religion"] = *user.Religion
+		// fieldsToUpdate = append(fieldsToUpdate, bson.M{"religion": *user.Religion})
 	}
 	if user.Hometown != nil {
-		fieldsToUpdate = append(fieldsToUpdate, bson.M{"hometown": *user.Hometown})
+		fieldsToUpdate["hometown"] = *user.Hometown
+		// fieldsToUpdate = append(fieldsToUpdate, bson.M{"hometown": *user.Hometown})
 	}
 	if user.PartnerGender != nil {
-		fieldsToUpdate = append(fieldsToUpdate, bson.M{"partnerGender": *user.PartnerGender})
-	}
-	if user.MeetingAddress != nil {
-		fieldsToUpdate = append(fieldsToUpdate, bson.M{"meetingAddress": *user.MeetingAddress})
+		fieldsToUpdate["partnerGender"] = *user.PartnerGender
+		// fieldsToUpdate = append(fieldsToUpdate, bson.M{"partnerGender": *user.PartnerGender})
 	}
 	if user.City != nil {
-		fieldsToUpdate = append(fieldsToUpdate, bson.M{"city": *user.City})
+		fieldsToUpdate["city"] = *user.City
+		// fieldsToUpdate = append(fieldsToUpdate, bson.M{"city": *user.City})
+	}
+	if user.Zipcode != nil {
+		fieldsToUpdate["zipcode"] = *user.Zipcode
+		// fieldsToUpdate = append(fieldsToUpdate, bson.M{"city": *user.City})
 	}
 	if user.Purpose != nil {
-		fieldsToUpdate = append(fieldsToUpdate, bson.M{"purpose": *user.Purpose})
+		fieldsToUpdate["purpose"] = *user.Purpose
+		// fieldsToUpdate = append(fieldsToUpdate, bson.M{"purpose": *user.Purpose})
 	}
 
 	err := c.repo.UpdateUserByUUID(user.UUID, fieldsToUpdate)

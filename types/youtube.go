@@ -50,7 +50,7 @@ type DetailsItem struct {
 
 // VideoDetailsResponse -
 type UserVideoItem struct {
-	UserUUID *string       `json: "user_uuid"`
+	UserUUID *string       `json: "userUuid"`
 	UUID     *string       `json: "uuid"`
 	Items    []DetailsItem `json: "items, omitempty"`
 }
